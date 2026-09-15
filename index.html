@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LV Surprise Event - Réservation</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">LV Surprise Event 🎁</div>
+        <nav>
+            <a href="#services">Nos Services</a>
+            <a href="#booking">Réserver une surprise</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="booking" class="booking-section">
+            <h2>Composez votre Anniversaire Surprise</h2>
+            <form id="surprise-form">
+                
+                <fieldset>
+                    <legend>1. Sélectionnez vos prestations</legend>
+                    <div class="options-grid">
+                        <label><input type="checkbox" name="service" value="35000" data-name="Décoration de chambre"> Décoration de chambre (35 000 FCFA)</label>
+                        <label><input type="checkbox" name="service" value="40000" data-name="Espace photo personnalisé"> Espace photo personnalisé (40 000 FCFA)</label>
+                        <label><input type="checkbox" name="service" value="25000" data-name="Gâteau sur mesure"> Gâteau sur mesure (25 000 FCFA)</label>
+                        <label><input type="checkbox" name="service" value="15000" data-name="Confection bouquet d'argent"> Confection bouquet d'argent (15 000 FCFA)</label>
+                        <label><input type="checkbox" name="service" value="20000" data-name="Panier surprise gourmand"> Panier surprise gourmand (20 000 FCFA)</label>
+                        <label><input type="checkbox" name="service" value="50000" data-name="Animation musicale (Prestataire)"> Musiciens en direct (50 000 FCFA)</label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>2. Informations de la surprise</legend>
+                    <div class="form-group">
+                        <label for="location">Adresse / Localisation du lieu :</label>
+                        <input type="text" id="location" placeholder="Ex: Akwa, Rue des Palmiers, Quartier..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date et Heure :</label>
+                        <input type="datetime-local" id="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipient">Nom & Téléphone du bénéficiaire :</label>
+                        <input type="text" id="recipient" placeholder="Personne à surprendre" required>
+                    </div>
+                </fieldset>
+
+                <div class="summary-box">
+                    <h3>Récapitulatif & Tarif</h3>
+                    <div id="selected-list">Aucune option sélectionnée</div>
+                    <div class="total-price">Total estimé : <span id="total-amount">0</span> FCFA</div>
+                    <button type="submit" class="btn-submit">Valider et Régler l'acompte</button>
+                </div>
+
+            </form>
+        </section>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
