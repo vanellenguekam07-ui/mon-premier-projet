@@ -1,41 +1,52 @@
-# Mon Premier Projet
-cat << 'EOF' > README.md
-# 🎁 LV Surprise Event - Application Web de Gestion d'Événements
+# 🎁 LV Surprise Event — Application Web Pro
 
-**LV Surprise Event** est une application web interactive dédiée à la réservation et à la gestion d'anniversaires surprises sur mesure (décorations, bouquets d'argent, gâteaux, animations musicales, etc.).
-
----
+**LV Surprise Event** est une application web complète de réservation et de gestion d'anniversaires surprises sur mesure : décorations, gâteaux personnalisés, bouquets d'argent, paniers gourmands et animations musicales.
 
 ## 🚀 Fonctionnalités
 
-### 👤 Espace Client (Réservation & Devis)
-- **Catalogue à la carte :** Choix des prestations (Décoration de chambre, Espace photo, Gâteau personnalisable, Bouquet d'argent, Panier surprise, Animation musicale avec prestataires).
-- **Calculateur dynamique :** Estimation instantanée du tarif total en fonction des options cochées.
-- **Formulaire de livraison :** Saisie précise du lieu (adresse/quartier), de la date, de l'heure et du bénéficiaire à surprendre.
+### 👤 Espace Client
+- **Accueil vitrine** : hero, univers de prestations, avis clients, packs promo.
+- **Page Nos Gâteaux** : 4 créations artisanales avec photos d'exemple, descriptions et **tarifs affichés**.
+- **Page Prestations** : décoration, espace photo, bouquet d'argent, panier gourmand, musiciens — chacun avec photo et tarif.
+- **Devis & réservation** : panier à la carte, remise pack auto (-10% déco + gâteau), acompte 30%, récapitulatif instantané.
+- **Suivi commande** : recherche par référence (ex : `LV-2026-2410`) ou téléphone, timeline de statut.
 
-### 🛠️ Espace Administration (Gestion & Prestataires)
-- **Tableau de bord centralisé :** Visualisation de toutes les commandes passées.
-- **Gestion des prestataires :** Suivi et validation du paiement des musiciens/intervenants externes.
-- **Persistance des données :** Sauvegarde automatique des commandes dans le navigateur via `localStorage`.
+### 🔐 Espace Pro — 2 administrateurs
+| Compte | Identifiant | Mot de passe | Droits |
+|---|---|---|---|
+| 👑 Super Admin | `vanelle` | `vanelle2026` | Tous droits (catalogue, photos, contenus, tarifs, suppressions, comptes) |
+| 🧑‍💼 Manager | `assistant` | `assistant2026` | Commandes, finances, prestataires (catalogue & contenus en lecture seule) |
 
----
+- **📊 Tableau de bord** : chiffre d'affaires, encaissé, **bénéfice net**, marge, panier moyen, reste à encaisser, alertes, graphiques (CA 6 mois + répartition par prestation), dernières commandes.
+- **🧾 Commandes** : recherche, filtres statut/paiement, détail, changement de statut, encaissement acompte/solde, paiement musiciens, **facture imprimable**, export CSV.
+- **💰 Gestion financière** : journal recettes/dépenses, bénéfice et marge nets, ajout d'opérations, export CSV.
+- **🎷 Prestataires** : musiciens/intervenants, tarifs, suivi des paiements par commande.
+- **🏷️ Tarifs & catalogue** : modification complète de chaque gâteau/prestation — nom, prix, **photo (upload depuis votre téléphone/PC, lien URL ou image par défaut)**, badge, description, détails — plus ajout/suppression d'articles et paramètres (taux acompte, remise pack, coût musicien). Réservé Super Admin.
+- **🌐 Contenu du site** : personnalisation de toutes les informations — nom de la marque, bandeau promo, titre/textes/photo d'accueil, bannières des pages catalogue, encadré personnalisation, téléphone, email, adresse, horaires, compteur de commandes. Bouton de restauration par défaut inclus. Réservé Super Admin.
+- **👥 Administrateurs** : rôles et permissions, changement de mot de passe.
 
-## 🛠️ Technologies Utilisées
+### 💾 Données
+Persistance locale via `localStorage` (commandes, journal financier, catalogue, contenus, photos compressées automatiquement, tarifs, comptes). Des **données de démonstration** réalistes sont chargées au premier lancement (réinitialisables depuis l'onglet Administrateurs).
 
-- **Frontend :** HTML5, CSS3 (Design Responsive), JavaScript Vanilla (ES6+)
-- **Système d'exploitation :** Ubuntu Linux
-- **Éditeur de code :** Visual Studio Code
-- **Versionning & Hébergement :** Git, GitHub
+## 🛠️ Technologies
+- **Frontend** : HTML5, CSS3 (design responsive), JavaScript Vanilla (ES6+, graphiques canvas maison, sans dépendance)
+- **Versionning** : Git, GitHub
 
----
-
-## 📁 Structure du Projet
-
+## 📁 Structure
 ```text
 mon-premier-projet/
-├── index.html        # Structure principale (Client & Admin)
+├── index.html        # Pages client + espace admin
 ├── css/
-│   └── style.css     # Style visuel et responsive design
+│   └── style.css     # Design system complet (client + admin, responsive)
 ├── js/
-│   └── app.js        # Logique métier, calculateur et gestion Admin
-└── README.md         # Documentation du projet
+│   └── app.js        # Catalogue, devis, commandes, dashboard, finances, auth
+├── images/           # Visuels : hero, gâteaux, prestations
+└── README.md         # Documentation
+```
+
+## ▶️ Lancer le projet
+Ouvrir `index.html` dans un navigateur, ou servir le dossier :
+```bash
+python3 -m http.server 8000
+# → http://localhost:8000
+```

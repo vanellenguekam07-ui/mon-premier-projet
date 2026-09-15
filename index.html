@@ -3,62 +3,610 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LV Surprise Event - Réservation</title>
+    <title>LV Surprise Event — Anniversaires surprises &amp; événements sur mesure</title>
+    <meta name="description" content="LV Surprise Event — décorations, gâteaux sur mesure, bouquets d'argent, paniers surprises et animations musicales. Composez votre surprise en ligne.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
 </head>
 <body>
-    <header>
-        <div class="logo">LV Surprise Event 🎁</div>
-        <nav>
-            <a href="#services">Nos Services</a>
-            <a href="#booking">Réserver une surprise</a>
+
+<!-- ═══════════ BANDEAU PROMO ═══════════ -->
+<div class="promo-bar" id="promo-bar">
+    <span id="promo-text">✨ Offre du moment : <strong>-10% sur les packs Décoration + Gâteau</strong> — Devis gratuit en 2 minutes</span>
+    <button class="promo-close" onclick="document.getElementById('promo-bar').remove()" aria-label="Fermer">×</button>
+</div>
+
+<!-- ═══════════ HEADER CLIENT ═══════════ -->
+<header class="site-header" id="site-header">
+    <div class="header-inner">
+        <a class="brand" href="#" onclick="showView('home');return false;">
+            <span class="brand-gift">🎁</span>
+            <span class="brand-text js-brand">LV <em>Surprise</em> Event</span>
+        </a>
+        <nav class="main-nav" id="main-nav">
+            <a href="#" data-nav="home" onclick="showView('home');return false;" class="active">Accueil</a>
+            <a href="#" data-nav="gateaux" onclick="showView('gateaux');return false;">Nos Gâteaux</a>
+            <a href="#" data-nav="prestations" onclick="showView('prestations');return false;">Prestations</a>
+            <a href="#" data-nav="booking" onclick="showView('booking');return false;">Réserver</a>
+            <a href="#" data-nav="tracking" onclick="showView('tracking');return false;">Suivi commande</a>
         </nav>
-    </header>
+        <div class="header-actions">
+            <button class="btn-cart" onclick="showView('booking')" aria-label="Voir mon devis">
+                🧾 <span>Devis</span>
+                <span class="cart-count" id="cart-count">0</span>
+            </button>
+            <button class="btn-pro" onclick="openLogin()">🔐 Espace Pro</button>
+            <button class="burger" id="burger" aria-label="Menu" onclick="document.getElementById('main-nav').classList.toggle('open')">☰</button>
+        </div>
+    </div>
+</header>
 
-    <main>
-        <section id="booking" class="booking-section">
-            <h2>Composez votre Anniversaire Surprise</h2>
-            <form id="surprise-form">
-                
-                <fieldset>
-                    <legend>1. Sélectionnez vos prestations</legend>
-                    <div class="options-grid">
-                        <label><input type="checkbox" name="service" value="35000" data-name="Décoration de chambre"> Décoration de chambre (35 000 FCFA)</label>
-                        <label><input type="checkbox" name="service" value="40000" data-name="Espace photo personnalisé"> Espace photo personnalisé (40 000 FCFA)</label>
-                        <label><input type="checkbox" name="service" value="25000" data-name="Gâteau sur mesure"> Gâteau sur mesure (25 000 FCFA)</label>
-                        <label><input type="checkbox" name="service" value="15000" data-name="Confection bouquet d'argent"> Confection bouquet d'argent (15 000 FCFA)</label>
-                        <label><input type="checkbox" name="service" value="20000" data-name="Panier surprise gourmand"> Panier surprise gourmand (20 000 FCFA)</label>
-                        <label><input type="checkbox" name="service" value="50000" data-name="Animation musicale (Prestataire)"> Musiciens en direct (50 000 FCFA)</label>
-                    </div>
-                </fieldset>
+<!-- ═══════════ APPLICATION CLIENTE ═══════════ -->
+<main id="client-app">
 
-                <fieldset>
-                    <legend>2. Informations de la surprise</legend>
-                    <div class="form-group">
-                        <label for="location">Adresse / Localisation du lieu :</label>
-                        <input type="text" id="location" placeholder="Ex: Akwa, Rue des Palmiers, Quartier..." required>
-                    </div>
-                    <div class="form-group">
-                        <label for="date">Date et Heure :</label>
-                        <input type="datetime-local" id="date" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="recipient">Nom & Téléphone du bénéficiaire :</label>
-                        <input type="text" id="recipient" placeholder="Personne à surprendre" required>
-                    </div>
-                </fieldset>
-
-                <div class="summary-box">
-                    <h3>Récapitulatif & Tarif</h3>
-                    <div id="selected-list">Aucune option sélectionnée</div>
-                    <div class="total-price">Total estimé : <span id="total-amount">0</span> FCFA</div>
-                    <button type="submit" class="btn-submit">Valider et Régler l'acompte</button>
+    <!-- ───── ACCUEIL ───── -->
+    <section id="view-home" class="view">
+        <div class="hero">
+            <div class="hero-bg" id="home-hero-bg" style="background-image:url('images/hero.jpg')"></div>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <span class="hero-badge" id="hero-badge">🎉 N°1 des surprises d'anniversaire sur mesure</span>
+                <h1 id="hero-title">Des surprises <em>inoubliables</em>,<br>organisées pour vous.</h1>
+                <p id="hero-subtitle">Décoration de chambre, gâteaux personnalisés, bouquets d'argent, musiciens en direct… Composez votre événement à la carte et recevez votre devis instantané.</p>
+                <div class="hero-cta">
+                    <button class="btn btn-gold" onclick="showView('booking')">Composer ma surprise →</button>
+                    <button class="btn btn-ghost" onclick="showView('gateaux')">Découvrir nos gâteaux</button>
                 </div>
+                <div class="hero-stats">
+                    <div><strong id="stat-orders">250+</strong><span>surprises réalisées</span></div>
+                    <div><strong>4,9/5</strong><span>avis clients ⭐</span></div>
+                    <div><strong>48h</strong><span>délai express possible</span></div>
+                </div>
+            </div>
+        </div>
 
-            </form>
+        <div class="trust-bar">
+            <div>✅ Devis instantané gratuit</div>
+            <div>💰 Acompte de 30% seulement</div>
+            <div>🚚 Livraison &amp; installation incluses</div>
+            <div>📞 Support 7j/7</div>
+        </div>
+
+        <div class="container">
+            <div class="section-head">
+                <span class="eyebrow">Notre carte</span>
+                <h2>Nos univers de prestations</h2>
+                <p>Chaque prestation est réalisée sur mesure, avec des tarifs transparents affichés.</p>
+            </div>
+            <div class="category-grid" id="home-categories"></div>
+        </div>
+
+        <div class="pack-banner">
+            <div class="container pack-inner">
+                <div>
+                    <span class="eyebrow light">Pack Romance 💘</span>
+                    <h2>Décoration + Gâteau + Bouquet dès <strong id="pack-price">75 000 FCFA</strong></h2>
+                    <p>Notre formule la plus demandée pour les anniversaires en amoureux.</p>
+                </div>
+                <button class="btn btn-gold" onclick="addPackRomance()">Ajouter le pack à mon devis</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="section-head">
+                <span class="eyebrow">Ils nous font confiance</span>
+                <h2>Ce que disent nos clients</h2>
+            </div>
+            <div class="reviews-grid">
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>« La décoration de chambre était magnifique, ma femme a pleuré de joie. Service très professionnel du devis à la livraison. »</p>
+                    <div class="reviewer"><span class="avatar">M</span><div><strong>Marc D.</strong><small>Pack Romance — Douala</small></div></div>
+                </div>
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>« Gâteau red velvet excellent et musiciens au top ! Tout était prêt à l'heure, je recommande les yeux fermés. »</p>
+                    <div class="reviewer"><span class="avatar">A</span><div><strong>Aïcha B.</strong><small>Anniversaire 30 ans — Yaoundé</small></div></div>
+                </div>
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>« Le bouquet d'argent a fait sensation. Devis clair, acompte simple, équipe ponctuelle. Merci LV Surprise Event ! »</p>
+                    <div class="reviewer"><span class="avatar">K</span><div><strong>Kevin N.</strong><small>Surprise demande — Douala</small></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="steps">
+                <div class="step"><span>1</span><h3>Composez</h3><p>Choisissez vos prestations et votre gâteau dans le catalogue.</p></div>
+                <div class="step"><span>2</span><h3>Recevez le devis</h3><p>Total calculé instantanément, acompte de 30%.</p></div>
+                <div class="step"><span>3</span><h3>On s'occupe de tout</h3><p>Livraison, installation et animation le jour J.</p></div>
+            </div>
+            <div class="center"><button class="btn btn-primary" onclick="showView('booking')">Commencer ma réservation →</button></div>
+        </div>
+    </section>
+
+    <!-- ───── PAGE GÂTEAUX ───── -->
+    <section id="view-gateaux" class="view hidden">
+        <div class="page-hero" id="gateaux-hero" style="background-image:url('images/gateau-redvelvet.jpg')">
+            <div class="page-hero-overlay"></div>
+            <div class="container">
+                <span class="eyebrow light">Pâtisserie artisanale</span>
+                <h1>Nos Gâteaux sur mesure 🎂</h1>
+                <p>Des créations artisanales personnalisées : parfum, message, décor et nombre de parts au choix. Tarifs tout inclus.</p>
+            </div>
+        </div>
+        <div class="container">
+            <div class="cakes-grid" id="cakes-grid"></div>
+            <div class="info-card">
+                <h3 id="cake-info-title">🎨 Personnalisation offerte</h3>
+                <p id="cake-info-text">Message sur le gâteau, choix du parfum (vanille, chocolat, red velvet, citron, coco), décor doré ou floral — sans supplément. Tailles disponibles : 8, 12, 20 ou 30+ parts. Délai : 48h minimum, 5 jours pour les pièces montées.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───── PAGE PRESTATIONS ───── -->
+    <section id="view-prestations" class="view hidden">
+        <div class="page-hero" id="prestations-hero" style="background-image:url('images/decoration.jpg')">
+            <div class="page-hero-overlay"></div>
+            <div class="container">
+                <span class="eyebrow light">Catalogue complet</span>
+                <h1>Nos Prestations ✨</h1>
+                <p>Décoration, espace photo, bouquets, paniers et animations — chaque tarif est affiché clairement, sans frais cachés.</p>
+            </div>
+        </div>
+        <div class="container">
+            <div class="services-grid" id="services-grid"></div>
+        </div>
+    </section>
+
+    <!-- ───── RÉSERVATION / DEVIS ───── -->
+    <section id="view-booking" class="view hidden">
+        <div class="container narrow">
+            <div class="section-head">
+                <span class="eyebrow">Devis gratuit instantané</span>
+                <h2>Composez votre surprise 🎁</h2>
+                <p>Sélectionnez vos prestations, ajoutez votre gâteau, puis indiquez les détails de la surprise.</p>
+            </div>
+            <div class="booking-layout">
+                <div class="booking-left">
+                    <div class="panel">
+                        <h3>1 · Mes prestations sélectionnées</h3>
+                        <div id="cart-items"></div>
+                        <div class="cart-empty-actions" id="cart-empty-actions">
+                            <button class="btn btn-outline" onclick="showView('gateaux')">+ Choisir un gâteau</button>
+                            <button class="btn btn-outline" onclick="showView('prestations')">+ Choisir des prestations</button>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <h3>2 · Informations de la surprise</h3>
+                        <form id="surprise-form" onsubmit="return submitOrder(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="client_name">Votre nom complet *</label>
+                                    <input type="text" id="client_name" placeholder="Ex : Vanelle Kamdem" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="client_phone">Votre téléphone *</label>
+                                    <input type="tel" id="client_phone" placeholder="Ex : 6 90 00 00 00" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Adresse / Localisation du lieu *</label>
+                                <input type="text" id="location" placeholder="Ex : Akwa, Rue des Palmiers, Douala…" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="date">Date *</label>
+                                    <input type="date" id="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="time">Heure d'installation *</label>
+                                    <input type="time" id="time" value="16:00" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="recipient">Nom du / de la bénéficiaire *</label>
+                                <input type="text" id="recipient" placeholder="Personne à surprendre" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Message / précisions (optionnel)</label>
+                                <textarea id="message" rows="3" placeholder="Thème, couleurs préférées, allergies, texte sur le gâteau…"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Valider ma réservation 🎉</button>
+                            <p class="form-note">En validant, vous acceptez d'être recontacté pour le versement de l'acompte de 30%. Sans engagement tant que l'acompte n'est pas versé.</p>
+                        </form>
+                    </div>
+                </div>
+                <div class="booking-right">
+                    <div class="panel summary sticky">
+                        <h3>Récapitulatif</h3>
+                        <div id="booking-summary"></div>
+                        <div class="summary-lines">
+                            <div class="summary-line"><span>Sous-total</span><strong id="summary-subtotal">0 FCFA</strong></div>
+                            <div class="summary-line discount hidden" id="summary-discount-row"><span>Remise pack -10%</span><strong id="summary-discount">-0 FCFA</strong></div>
+                            <div class="summary-line total"><span>Total estimé</span><strong id="summary-total">0 FCFA</strong></div>
+                            <div class="summary-line acompte"><span>Acompte à verser (30%)</span><strong id="summary-acompte">0 FCFA</strong></div>
+                            <div class="summary-line"><span>Solde le jour J</span><strong id="summary-solde">0 FCFA</strong></div>
+                        </div>
+                        <div class="summary-guarantees">
+                            <span>🔒 Devis sans engagement</span>
+                            <span>💳 MTN MoMo · Orange Money · Espèces</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel hidden" id="order-confirmation"></div>
+        </div>
+    </section>
+
+    <!-- ───── SUIVI COMMANDE ───── -->
+    <section id="view-tracking" class="view hidden">
+        <div class="container narrow">
+            <div class="section-head">
+                <span class="eyebrow">Espace client</span>
+                <h2>Suivre ma commande 📦</h2>
+                <p>Retrouvez votre référence sur votre confirmation de réservation (ex : LV-2026-XXXX).</p>
+            </div>
+            <div class="panel">
+                <div class="tracking-form">
+                    <input type="text" id="tracking-input" placeholder="Référence (LV-2026-…) ou téléphone">
+                    <button class="btn btn-primary" onclick="trackOrder()">Rechercher</button>
+                </div>
+                <div id="tracking-result"></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="site-footer" id="site-footer">
+    <div class="container footer-grid">
+        <div>
+            <div class="brand"><span class="brand-gift">🎁</span><span class="brand-text js-brand">LV <em>Surprise</em> Event</span></div>
+            <p>L'atelier des surprises sur mesure : décoration, pâtisserie, bouquets et animations pour des moments inoubliables.</p>
+            <p class="footer-contact" id="footer-contact">📍 Douala &amp; Yaoundé, Cameroun<br>📞 +237 6 90 00 00 00<br>✉️ contact@lv-surprise.cm</p>
+        </div>
+        <div>
+            <h4>Catalogue</h4>
+            <a href="#" onclick="showView('gateaux');return false;">Nos gâteaux</a>
+            <a href="#" onclick="showView('prestations');return false;">Prestations</a>
+            <a href="#" onclick="showView('booking');return false;">Devis &amp; réservation</a>
+            <a href="#" onclick="showView('tracking');return false;">Suivi commande</a>
+        </div>
+        <div>
+            <h4>Informations</h4>
+            <a href="#" onclick="toast('Page en cours de rédaction');return false;">Conditions générales</a>
+            <a href="#" onclick="toast('Acompte 30% · Solde le jour J · Annulation 72h');return false;">Paiements &amp; annulation</a>
+            <a href="#" onclick="openLogin();return false;">🔐 Espace Pro (Admin)</a>
+        </div>
+        <div>
+            <h4>Horaires</h4>
+            <p id="footer-hours">Lun – Sam : 8h → 20h<br>Dimanche : 12h → 18h<br><br><span class="badge-open">● Disponible 7j/7 sur WhatsApp</span></p>
+        </div>
+    </div>
+    <div class="footer-bottom">© 2026 LV Surprise Event — Tous droits réservés · Fait avec 💛 au Cameroun</div>
+</footer>
+
+<!-- ═══════════ APPLICATION ADMIN ═══════════ -->
+<div id="admin-app" class="hidden">
+    <aside class="admin-sidebar" id="admin-sidebar">
+        <div class="admin-brand">🎁 LV <em>Pro</em></div>
+        <div class="admin-profile">
+            <span class="admin-avatar" id="admin-avatar">V</span>
+            <div><strong id="admin-name">—</strong><small id="admin-role">—</small></div>
+        </div>
+        <nav class="admin-nav">
+            <button data-admin="dashboard" class="active" onclick="showAdmin('dashboard')">📊 Tableau de bord</button>
+            <button data-admin="orders" onclick="showAdmin('orders')">🧾 Commandes <span class="nav-badge" id="nav-orders-badge"></span></button>
+            <button data-admin="finance" onclick="showAdmin('finance')">💰 Gestion financière</button>
+            <button data-admin="providers" onclick="showAdmin('providers')">🎷 Prestataires</button>
+            <button data-admin="pricing" onclick="showAdmin('pricing')">🏷️ Tarifs &amp; catalogue</button>
+            <button data-admin="site" onclick="showAdmin('site')">🌐 Contenu du site</button>
+            <button data-admin="team" onclick="showAdmin('team')">👥 Administrateurs</button>
+        </nav>
+        <div class="admin-sidebar-foot">
+            <button class="btn btn-ghost light" onclick="exitAdmin()">← Retour au site</button>
+            <button class="btn btn-outline light" onclick="logout()">Déconnexion</button>
+        </div>
+    </aside>
+
+    <div class="admin-main">
+        <div class="admin-topbar">
+            <button class="burger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">☰</button>
+            <h2 id="admin-title">Tableau de bord</h2>
+            <span class="admin-date" id="admin-date"></span>
+        </div>
+
+        <!-- DASHBOARD -->
+        <section id="admin-dashboard" class="admin-view">
+            <div class="kpi-grid">
+                <div class="kpi kpi-gold"><small>Chiffre d'affaires</small><strong id="kpi-ca">0</strong><span id="kpi-ca-sub"></span></div>
+                <div class="kpi kpi-green"><small>Encaissé</small><strong id="kpi-encaisse">0</strong><span id="kpi-encaisse-sub"></span></div>
+                <div class="kpi kpi-rose"><small>Bénéfice net</small><strong id="kpi-benef">0</strong><span id="kpi-benef-sub"></span></div>
+                <div class="kpi"><small>Commandes</small><strong id="kpi-orders">0</strong><span id="kpi-orders-sub"></span></div>
+                <div class="kpi"><small>Panier moyen</small><strong id="kpi-panier">0</strong><span id="kpi-panier-sub"></span></div>
+                <div class="kpi"><small>Reste à encaisser</small><strong id="kpi-reste">0</strong><span id="kpi-reste-sub"></span></div>
+            </div>
+            <div class="alerts" id="admin-alerts"></div>
+            <div class="charts-grid">
+                <div class="panel"><h3>Chiffre d'affaires — 6 derniers mois</h3><canvas id="chart-ca" height="220"></canvas></div>
+                <div class="panel"><h3>Répartition du CA par prestation</h3><canvas id="chart-mix" height="220"></canvas><div class="legend" id="chart-mix-legend"></div></div>
+            </div>
+            <div class="panel">
+                <div class="panel-head"><h3>Dernières commandes</h3><button class="btn btn-outline btn-sm" onclick="showAdmin('orders')">Tout voir →</button></div>
+                <div class="table-wrap"><table class="table" id="recent-orders-table">
+                    <thead><tr><th>Réf.</th><th>Client</th><th>Date</th><th>Total</th><th>Statut</th></tr></thead>
+                    <tbody id="recent-orders-body"></tbody>
+                </table></div>
+            </div>
         </section>
-    </main>
 
-    <script src="js/app.js"></script>
+        <!-- COMMANDES -->
+        <section id="admin-orders" class="admin-view hidden">
+            <div class="panel">
+                <div class="filters">
+                    <input type="search" id="orders-search" placeholder="🔍 Rechercher (client, réf, lieu…)" oninput="renderAdminOrders()">
+                    <select id="orders-filter-status" onchange="renderAdminOrders()">
+                        <option value="">Tous statuts</option>
+                        <option>En attente</option>
+                        <option>Confirmée</option>
+                        <option>Livrée</option>
+                        <option>Annulée</option>
+                    </select>
+                    <select id="orders-filter-pay" onchange="renderAdminOrders()">
+                        <option value="">Tous paiements</option>
+                        <option>Non payé</option>
+                        <option>Acompte versé</option>
+                        <option>Soldé</option>
+                    </select>
+                    <button class="btn btn-outline btn-sm" onclick="exportOrdersCSV()">⬇ Export CSV</button>
+                </div>
+                <div class="table-wrap"><table class="table">
+                    <thead><tr><th>Réf.</th><th>Client</th><th>Événement</th><th>Prestations</th><th>Total</th><th>Paiement</th><th>Statut</th><th>Actions</th></tr></thead>
+                    <tbody id="admin-orders-list"></tbody>
+                </table></div>
+            </div>
+        </section>
+
+        <!-- FINANCES -->
+        <section id="admin-finance" class="admin-view hidden">
+            <div class="kpi-grid small">
+                <div class="kpi kpi-green"><small>Total recettes</small><strong id="fin-recettes">0</strong></div>
+                <div class="kpi kpi-red"><small>Total dépenses</small><strong id="fin-depenses">0</strong></div>
+                <div class="kpi kpi-gold"><small>Bénéfice net</small><strong id="fin-benef">0</strong></div>
+                <div class="kpi"><small>Marge nette</small><strong id="fin-marge">0%</strong></div>
+            </div>
+            <div class="finance-layout">
+                <div class="panel">
+                    <h3>Ajouter une opération</h3>
+                    <form onsubmit="return addTransaction(event)" class="fin-form">
+                        <div class="form-row">
+                            <div class="form-group"><label>Type</label>
+                                <select id="tx-type"><option value="recette">💚 Recette</option><option value="depense">❤️ Dépense</option></select>
+                            </div>
+                            <div class="form-group"><label>Montant (FCFA)</label><input type="number" id="tx-amount" min="0" required placeholder="15000"></div>
+                        </div>
+                        <div class="form-group"><label>Catégorie</label>
+                            <select id="tx-category">
+                                <option>Encaissement commande</option><option>Acompte</option><option>Solde</option>
+                                <option>Achat matières / déco</option><option>Paiement prestataire</option>
+                                <option>Transport / livraison</option><option>Loyer &amp; charges</option>
+                                <option>Publicité</option><option>Autre</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Libellé</label><input type="text" id="tx-label" required placeholder="Ex : Achat ballons et rubans"></div>
+                        <div class="form-group"><label>Date</label><input type="date" id="tx-date" required></div>
+                        <button class="btn btn-primary btn-block" type="submit">Enregistrer</button>
+                    </form>
+                </div>
+                <div class="panel">
+                    <div class="panel-head"><h3>Journal des opérations</h3><button class="btn btn-outline btn-sm" onclick="exportFinanceCSV()">⬇ Export CSV</button></div>
+                    <div class="table-wrap"><table class="table">
+                        <thead><tr><th>Date</th><th>Libellé</th><th>Catégorie</th><th>Montant</th><th></th></tr></thead>
+                        <tbody id="finance-list"></tbody>
+                    </table></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRESTATAIRES -->
+        <section id="admin-providers" class="admin-view hidden">
+            <div class="kpi-grid small">
+                <div class="kpi"><small>Prestataires</small><strong id="prov-count">0</strong></div>
+                <div class="kpi kpi-green"><small>Montants versés</small><strong id="prov-paid">0</strong></div>
+                <div class="kpi kpi-red"><small>Reste à payer</small><strong id="prov-due">0</strong></div>
+            </div>
+            <div class="panel">
+                <div class="panel-head"><h3>Intervenants &amp; musiciens</h3>
+                    <button class="btn btn-primary btn-sm" onclick="toggleProviderForm()">+ Ajouter</button></div>
+                <form id="provider-form" class="hidden fin-form" onsubmit="return addProvider(event)">
+                    <div class="form-row">
+                        <div class="form-group"><label>Nom</label><input id="prov-name" required placeholder="Ex : Saxo John"></div>
+                        <div class="form-group"><label>Spécialité</label><input id="prov-skill" required placeholder="Ex : Saxophoniste"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Téléphone</label><input id="prov-phone" placeholder="6 90 …"></div>
+                        <div class="form-group"><label>Tarif / prestation</label><input id="prov-cost" type="number" min="0" value="30000"></div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" type="submit">Enregistrer</button>
+                </form>
+                <div class="table-wrap"><table class="table">
+                    <thead><tr><th>Nom</th><th>Spécialité</th><th>Téléphone</th><th>Tarif</th><th>Missions</th><th></th></tr></thead>
+                    <tbody id="providers-list"></tbody>
+                </table></div>
+            </div>
+            <div class="panel">
+                <h3>Paiements musiciens par commande</h3>
+                <div class="table-wrap"><table class="table">
+                    <thead><tr><th>Réf.</th><th>Client</th><th>Date</th><th>Coût</th><th>Statut</th><th></th></tr></thead>
+                    <tbody id="music-payments-list"></tbody>
+                </table></div>
+            </div>
+        </section>
+
+        <!-- TARIFS -->
+        <section id="admin-pricing" class="admin-view hidden">
+            <div class="panel">
+                <div class="panel-head">
+                    <div><h3>🎂 Gâteaux — nom, prix, photos, descriptions</h3>
+                    <p class="muted">Tout est modifiable : uploadez vos propres photos, changez les noms, tarifs et textes.</p></div>
+                    <button class="btn btn-primary btn-sm" id="btn-add-gateau" onclick="addCatalogItem('gateau')">+ Ajouter un gâteau</button>
+                </div>
+                <div id="pricing-gateaux"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-head">
+                    <div><h3>✨ Prestations — nom, prix, photos, descriptions</h3>
+                    <p class="muted">Tout est modifiable : uploadez vos propres photos, changez les noms, tarifs et textes.</p></div>
+                    <button class="btn btn-primary btn-sm" id="btn-add-presta" onclick="addCatalogItem('prestation')">+ Ajouter une prestation</button>
+                </div>
+                <div id="pricing-prestations"></div>
+            </div>
+            <div class="panel">
+                <h3>⚙️ Paramètres commerciaux</h3>
+                <div class="form-row">
+                    <div class="form-group"><label>Taux d'acompte (%)</label><input type="number" id="setting-acompte" min="0" max="100" value="30"></div>
+                    <div class="form-group"><label>Remise pack déco + gâteau (%)</label><input type="number" id="setting-remise" min="0" max="50" value="10"></div>
+                    <div class="form-group"><label>Coût musicien par défaut</label><input type="number" id="setting-music" min="0" step="500" value="30000"></div>
+                </div>
+                <button class="btn btn-primary" onclick="saveSettings()">💾 Enregistrer les paramètres</button>
+            </div>
+        </section>
+
+        <!-- CONTENU DU SITE -->
+        <section id="admin-site" class="admin-view hidden">
+            <div class="perm-note hidden" id="site-lock-note">🔒 Modification réservée au <strong>Super Admin</strong> (lecture seule).</div>
+            <div class="panel">
+                <h3>📢 Marque &amp; bandeau promo</h3>
+                <div class="form-row">
+                    <div class="form-group"><label>Nom de la marque <small class="muted">(*mot* = doré italique)</small></label><input id="site-brand" class="site-field"></div>
+                    <div class="form-group"><label>Bandeau promo du haut</label><label class="check-line"><input type="checkbox" id="site-promo-active" class="site-field"> Afficher le bandeau</label></div>
+                </div>
+                <div class="form-group"><label>Texte du bandeau promo <small class="muted">(*mot* = gras)</small></label><input id="site-promo" class="site-field"></div>
+            </div>
+            <div class="panel">
+                <h3>🏠 Page d'accueil</h3>
+                <div class="site-img-block">
+                    <img id="site-hero-preview" class="site-preview" alt="Image d'accueil">
+                    <div class="site-img-actions">
+                        <label class="btn-mini">📤 Uploader une photo<input type="file" accept="image/*" class="hidden" onchange="uploadSiteImage('heroImage',this)"></label>
+                        <button class="btn-mini" onclick="setSiteImageUrl('heroImage')">🔗 Adresse URL</button>
+                        <button class="btn-mini" onclick="resetSiteImage('heroImage')">↩ Image par défaut</button>
+                    </div>
+                </div>
+                <div class="form-group"><label>Pastille du haut</label><input id="site-hero-badge" class="site-field"></div>
+                <div class="form-group"><label>Grand titre <small class="muted">(*mot* = doré italique, saut de ligne permis)</small></label><textarea id="site-hero-title" class="site-field" rows="2"></textarea></div>
+                <div class="form-group"><label>Sous-titre de présentation</label><textarea id="site-hero-subtitle" class="site-field" rows="3"></textarea></div>
+            </div>
+            <div class="panel">
+                <h3>🖼️ Bannières des pages catalogue</h3>
+                <div class="form-row">
+                    <div class="site-img-block">
+                        <label><strong>Bannière page « Nos Gâteaux »</strong></label>
+                        <img id="site-gateaux-preview" class="site-preview" alt="">
+                        <div class="site-img-actions">
+                            <label class="btn-mini">📤 Uploader<input type="file" accept="image/*" class="hidden" onchange="uploadSiteImage('gateauxHero',this)"></label>
+                            <button class="btn-mini" onclick="setSiteImageUrl('gateauxHero')">🔗 URL</button>
+                            <button class="btn-mini" onclick="resetSiteImage('gateauxHero')">↩ Défaut</button>
+                        </div>
+                    </div>
+                    <div class="site-img-block">
+                        <label><strong>Bannière page « Prestations »</strong></label>
+                        <img id="site-presta-preview" class="site-preview" alt="">
+                        <div class="site-img-actions">
+                            <label class="btn-mini">📤 Uploader<input type="file" accept="image/*" class="hidden" onchange="uploadSiteImage('prestaHero',this)"></label>
+                            <button class="btn-mini" onclick="setSiteImageUrl('prestaHero')">🔗 URL</button>
+                            <button class="btn-mini" onclick="resetSiteImage('prestaHero')">↩ Défaut</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <h3>🎂 Encadré « personnalisation » (page gâteaux)</h3>
+                <div class="form-group"><label>Titre de l'encadré</label><input id="site-cake-title" class="site-field"></div>
+                <div class="form-group"><label>Texte de l'encadré</label><textarea id="site-cake-text" class="site-field" rows="3"></textarea></div>
+            </div>
+            <div class="panel">
+                <h3>📞 Coordonnées &amp; horaires (pied de page + factures)</h3>
+                <div class="form-row">
+                    <div class="form-group"><label>Téléphone</label><input id="site-phone" class="site-field"></div>
+                    <div class="form-group"><label>Email</label><input id="site-email" class="site-field"></div>
+                </div>
+                <div class="form-group"><label>Adresse / zone d'intervention</label><input id="site-address" class="site-field"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Horaires <small class="muted">(une ligne = un saut de ligne)</small></label><textarea id="site-hours" class="site-field" rows="2"></textarea></div>
+                    <div class="form-group"><label>Compteur « surprises réalisées » <small class="muted">(base + vraies commandes)</small></label><input id="site-base" type="number" min="0" class="site-field"></div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="row-actions">
+                    <button class="btn btn-primary" id="site-save-btn" onclick="saveSiteForm()">💾 Enregistrer tout le contenu</button>
+                    <button class="btn btn-outline" id="site-reset-btn" onclick="resetAllContent()">↩ Tout restaurer par défaut</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ÉQUIPE ADMIN -->
+        <section id="admin-team" class="admin-view hidden">
+            <div class="panel">
+                <h3>👥 Les administrateurs</h3>
+                <p class="muted">Deux comptes gèrent la boutique. Le <strong>Super Admin</strong> a tous les droits ; le <strong>Manager</strong> gère commandes, finances et prestataires, sans accès aux tarifs ni à la gestion des comptes.</p>
+                <div class="team-grid" id="team-grid"></div>
+            </div>
+            <div class="panel">
+                <h3>🔑 Changer mon mot de passe</h3>
+                <form onsubmit="return changePassword(event)" class="fin-form" style="max-width:420px">
+                    <div class="form-group"><label>Mot de passe actuel</label><input type="password" id="pw-old" required></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Nouveau</label><input type="password" id="pw-new" minlength="6" required></div>
+                        <div class="form-group"><label>Confirmation</label><input type="password" id="pw-confirm" minlength="6" required></div>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Mettre à jour</button>
+                </form>
+            </div>
+            <div class="panel danger-zone">
+                <h3>🗑️ Zone dangereuse</h3>
+                <p class="muted">Réinitialise les commandes de démonstration et le journal financier.</p>
+                <button class="btn btn-danger btn-sm" onclick="resetDemoData()">Réinitialiser les données de démo</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- ═══════════ MODAL CONNEXION ═══════════ -->
+<div class="modal-overlay hidden" id="login-modal">
+    <div class="modal">
+        <button class="modal-close" onclick="closeLogin()">×</button>
+        <div class="login-head">🔐<h2>Espace Pro</h2><p>Réservé aux administrateurs LV Surprise Event</p></div>
+        <form onsubmit="return doLogin(event)">
+            <div class="form-group"><label>Identifiant</label><input type="text" id="login-user" required placeholder="vanelle ou assistant" autocomplete="username"></div>
+            <div class="form-group"><label>Mot de passe</label><input type="password" id="login-pass" required placeholder="••••••••" autocomplete="current-password"></div>
+            <p class="login-error hidden" id="login-error">Identifiants incorrects</p>
+            <button class="btn btn-primary btn-block" type="submit">Se connecter</button>
+        </form>
+        <div class="login-hint">
+            <strong>Comptes de démonstration :</strong><br>
+            👑 Super Admin → <code>vanelle</code> / <code>vanelle2026</code><br>
+            🧑‍💼 Manager → <code>assistant</code> / <code>assistant2026</code>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════ MODAL DÉTAIL COMMANDE ═══════════ -->
+<div class="modal-overlay hidden" id="order-modal">
+    <div class="modal large">
+        <button class="modal-close" onclick="closeOrderModal()">×</button>
+        <div id="order-modal-content"></div>
+    </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script src="js/app.js"></script>
 </body>
 </html>
