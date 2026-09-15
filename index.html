@@ -15,7 +15,7 @@
 
 <!-- ═══════════ BANDEAU PROMO ═══════════ -->
 <div class="promo-bar" id="promo-bar">
-    ✨ Offre du moment : <strong>-10% sur les packs Décoration + Gâteau</strong> — Devis gratuit en 2 minutes
+    <span id="promo-text">✨ Offre du moment : <strong>-10% sur les packs Décoration + Gâteau</strong> — Devis gratuit en 2 minutes</span>
     <button class="promo-close" onclick="document.getElementById('promo-bar').remove()" aria-label="Fermer">×</button>
 </div>
 
@@ -24,7 +24,7 @@
     <div class="header-inner">
         <a class="brand" href="#" onclick="showView('home');return false;">
             <span class="brand-gift">🎁</span>
-            <span class="brand-text">LV <em>Surprise</em> Event</span>
+            <span class="brand-text js-brand">LV <em>Surprise</em> Event</span>
         </a>
         <nav class="main-nav" id="main-nav">
             <a href="#" data-nav="home" onclick="showView('home');return false;" class="active">Accueil</a>
@@ -50,12 +50,12 @@
     <!-- ───── ACCUEIL ───── -->
     <section id="view-home" class="view">
         <div class="hero">
-            <div class="hero-bg" style="background-image:url('images/hero.jpg')"></div>
+            <div class="hero-bg" id="home-hero-bg" style="background-image:url('images/hero.jpg')"></div>
             <div class="hero-overlay"></div>
             <div class="hero-content">
-                <span class="hero-badge">🎉 N°1 des surprises d'anniversaire sur mesure</span>
-                <h1>Des surprises <em>inoubliables</em>,<br>organisées pour vous.</h1>
-                <p>Décoration de chambre, gâteaux personnalisés, bouquets d'argent, musiciens en direct… Composez votre événement à la carte et recevez votre devis instantané.</p>
+                <span class="hero-badge" id="hero-badge">🎉 N°1 des surprises d'anniversaire sur mesure</span>
+                <h1 id="hero-title">Des surprises <em>inoubliables</em>,<br>organisées pour vous.</h1>
+                <p id="hero-subtitle">Décoration de chambre, gâteaux personnalisés, bouquets d'argent, musiciens en direct… Composez votre événement à la carte et recevez votre devis instantané.</p>
                 <div class="hero-cta">
                     <button class="btn btn-gold" onclick="showView('booking')">Composer ma surprise →</button>
                     <button class="btn btn-ghost" onclick="showView('gateaux')">Découvrir nos gâteaux</button>
@@ -131,7 +131,7 @@
 
     <!-- ───── PAGE GÂTEAUX ───── -->
     <section id="view-gateaux" class="view hidden">
-        <div class="page-hero" style="background-image:url('images/gateau-redvelvet.jpg')">
+        <div class="page-hero" id="gateaux-hero" style="background-image:url('images/gateau-redvelvet.jpg')">
             <div class="page-hero-overlay"></div>
             <div class="container">
                 <span class="eyebrow light">Pâtisserie artisanale</span>
@@ -142,15 +142,15 @@
         <div class="container">
             <div class="cakes-grid" id="cakes-grid"></div>
             <div class="info-card">
-                <h3>🎨 Personnalisation offerte</h3>
-                <p>Message sur le gâteau, choix du parfum (vanille, chocolat, red velvet, citron, coco), décor doré ou floral — sans supplément. Tailles disponibles : 8, 12, 20 ou 30+ parts. Délai : 48h minimum, 5 jours pour les pièces montées.</p>
+                <h3 id="cake-info-title">🎨 Personnalisation offerte</h3>
+                <p id="cake-info-text">Message sur le gâteau, choix du parfum (vanille, chocolat, red velvet, citron, coco), décor doré ou floral — sans supplément. Tailles disponibles : 8, 12, 20 ou 30+ parts. Délai : 48h minimum, 5 jours pour les pièces montées.</p>
             </div>
         </div>
     </section>
 
     <!-- ───── PAGE PRESTATIONS ───── -->
     <section id="view-prestations" class="view hidden">
-        <div class="page-hero" style="background-image:url('images/decoration.jpg')">
+        <div class="page-hero" id="prestations-hero" style="background-image:url('images/decoration.jpg')">
             <div class="page-hero-overlay"></div>
             <div class="container">
                 <span class="eyebrow light">Catalogue complet</span>
@@ -267,9 +267,9 @@
 <footer class="site-footer" id="site-footer">
     <div class="container footer-grid">
         <div>
-            <div class="brand"><span class="brand-gift">🎁</span><span class="brand-text">LV <em>Surprise</em> Event</span></div>
+            <div class="brand"><span class="brand-gift">🎁</span><span class="brand-text js-brand">LV <em>Surprise</em> Event</span></div>
             <p>L'atelier des surprises sur mesure : décoration, pâtisserie, bouquets et animations pour des moments inoubliables.</p>
-            <p class="footer-contact">📍 Douala &amp; Yaoundé, Cameroun<br>📞 +237 6 90 00 00 00<br>✉️ contact@lv-surprise.cm</p>
+            <p class="footer-contact" id="footer-contact">📍 Douala &amp; Yaoundé, Cameroun<br>📞 +237 6 90 00 00 00<br>✉️ contact@lv-surprise.cm</p>
         </div>
         <div>
             <h4>Catalogue</h4>
@@ -286,7 +286,7 @@
         </div>
         <div>
             <h4>Horaires</h4>
-            <p>Lun – Sam : 8h → 20h<br>Dimanche : 12h → 18h<br><br><span class="badge-open">● Disponible 7j/7 sur WhatsApp</span></p>
+            <p id="footer-hours">Lun – Sam : 8h → 20h<br>Dimanche : 12h → 18h<br><br><span class="badge-open">● Disponible 7j/7 sur WhatsApp</span></p>
         </div>
     </div>
     <div class="footer-bottom">© 2026 LV Surprise Event — Tous droits réservés · Fait avec 💛 au Cameroun</div>
@@ -306,6 +306,7 @@
             <button data-admin="finance" onclick="showAdmin('finance')">💰 Gestion financière</button>
             <button data-admin="providers" onclick="showAdmin('providers')">🎷 Prestataires</button>
             <button data-admin="pricing" onclick="showAdmin('pricing')">🏷️ Tarifs &amp; catalogue</button>
+            <button data-admin="site" onclick="showAdmin('site')">🌐 Contenu du site</button>
             <button data-admin="team" onclick="showAdmin('team')">👥 Administrateurs</button>
         </nav>
         <div class="admin-sidebar-foot">
@@ -451,13 +452,19 @@
         <!-- TARIFS -->
         <section id="admin-pricing" class="admin-view hidden">
             <div class="panel">
-                <h3>🏷️ Tarifs des gâteaux</h3>
-                <p class="muted">Modifiez les prix affichés sur la page client « Nos Gâteaux ».</p>
+                <div class="panel-head">
+                    <div><h3>🎂 Gâteaux — nom, prix, photos, descriptions</h3>
+                    <p class="muted">Tout est modifiable : uploadez vos propres photos, changez les noms, tarifs et textes.</p></div>
+                    <button class="btn btn-primary btn-sm" id="btn-add-gateau" onclick="addCatalogItem('gateau')">+ Ajouter un gâteau</button>
+                </div>
                 <div id="pricing-gateaux"></div>
             </div>
             <div class="panel">
-                <h3>✨ Tarifs des prestations</h3>
-                <p class="muted">Modifiez les prix affichés sur la page client « Prestations ».</p>
+                <div class="panel-head">
+                    <div><h3>✨ Prestations — nom, prix, photos, descriptions</h3>
+                    <p class="muted">Tout est modifiable : uploadez vos propres photos, changez les noms, tarifs et textes.</p></div>
+                    <button class="btn btn-primary btn-sm" id="btn-add-presta" onclick="addCatalogItem('prestation')">+ Ajouter une prestation</button>
+                </div>
                 <div id="pricing-prestations"></div>
             </div>
             <div class="panel">
@@ -468,6 +475,79 @@
                     <div class="form-group"><label>Coût musicien par défaut</label><input type="number" id="setting-music" min="0" step="500" value="30000"></div>
                 </div>
                 <button class="btn btn-primary" onclick="saveSettings()">💾 Enregistrer les paramètres</button>
+            </div>
+        </section>
+
+        <!-- CONTENU DU SITE -->
+        <section id="admin-site" class="admin-view hidden">
+            <div class="perm-note hidden" id="site-lock-note">🔒 Modification réservée au <strong>Super Admin</strong> (lecture seule).</div>
+            <div class="panel">
+                <h3>📢 Marque &amp; bandeau promo</h3>
+                <div class="form-row">
+                    <div class="form-group"><label>Nom de la marque <small class="muted">(*mot* = doré italique)</small></label><input id="site-brand" class="site-field"></div>
+                    <div class="form-group"><label>Bandeau promo du haut</label><label class="check-line"><input type="checkbox" id="site-promo-active" class="site-field"> Afficher le bandeau</label></div>
+                </div>
+                <div class="form-group"><label>Texte du bandeau promo <small class="muted">(*mot* = gras)</small></label><input id="site-promo" class="site-field"></div>
+            </div>
+            <div class="panel">
+                <h3>🏠 Page d'accueil</h3>
+                <div class="site-img-block">
+                    <img id="site-hero-preview" class="site-preview" alt="Image d'accueil">
+                    <div class="site-img-actions">
+                        <label class="btn-mini">📤 Uploader une photo<input type="file" accept="image/*" class="hidden" onchange="uploadSiteImage('heroImage',this)"></label>
+                        <button class="btn-mini" onclick="setSiteImageUrl('heroImage')">🔗 Adresse URL</button>
+                        <button class="btn-mini" onclick="resetSiteImage('heroImage')">↩ Image par défaut</button>
+                    </div>
+                </div>
+                <div class="form-group"><label>Pastille du haut</label><input id="site-hero-badge" class="site-field"></div>
+                <div class="form-group"><label>Grand titre <small class="muted">(*mot* = doré italique, saut de ligne permis)</small></label><textarea id="site-hero-title" class="site-field" rows="2"></textarea></div>
+                <div class="form-group"><label>Sous-titre de présentation</label><textarea id="site-hero-subtitle" class="site-field" rows="3"></textarea></div>
+            </div>
+            <div class="panel">
+                <h3>🖼️ Bannières des pages catalogue</h3>
+                <div class="form-row">
+                    <div class="site-img-block">
+                        <label><strong>Bannière page « Nos Gâteaux »</strong></label>
+                        <img id="site-gateaux-preview" class="site-preview" alt="">
+                        <div class="site-img-actions">
+                            <label class="btn-mini">📤 Uploader<input type="file" accept="image/*" class="hidden" onchange="uploadSiteImage('gateauxHero',this)"></label>
+                            <button class="btn-mini" onclick="setSiteImageUrl('gateauxHero')">🔗 URL</button>
+                            <button class="btn-mini" onclick="resetSiteImage('gateauxHero')">↩ Défaut</button>
+                        </div>
+                    </div>
+                    <div class="site-img-block">
+                        <label><strong>Bannière page « Prestations »</strong></label>
+                        <img id="site-presta-preview" class="site-preview" alt="">
+                        <div class="site-img-actions">
+                            <label class="btn-mini">📤 Uploader<input type="file" accept="image/*" class="hidden" onchange="uploadSiteImage('prestaHero',this)"></label>
+                            <button class="btn-mini" onclick="setSiteImageUrl('prestaHero')">🔗 URL</button>
+                            <button class="btn-mini" onclick="resetSiteImage('prestaHero')">↩ Défaut</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <h3>🎂 Encadré « personnalisation » (page gâteaux)</h3>
+                <div class="form-group"><label>Titre de l'encadré</label><input id="site-cake-title" class="site-field"></div>
+                <div class="form-group"><label>Texte de l'encadré</label><textarea id="site-cake-text" class="site-field" rows="3"></textarea></div>
+            </div>
+            <div class="panel">
+                <h3>📞 Coordonnées &amp; horaires (pied de page + factures)</h3>
+                <div class="form-row">
+                    <div class="form-group"><label>Téléphone</label><input id="site-phone" class="site-field"></div>
+                    <div class="form-group"><label>Email</label><input id="site-email" class="site-field"></div>
+                </div>
+                <div class="form-group"><label>Adresse / zone d'intervention</label><input id="site-address" class="site-field"></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Horaires <small class="muted">(une ligne = un saut de ligne)</small></label><textarea id="site-hours" class="site-field" rows="2"></textarea></div>
+                    <div class="form-group"><label>Compteur « surprises réalisées » <small class="muted">(base + vraies commandes)</small></label><input id="site-base" type="number" min="0" class="site-field"></div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="row-actions">
+                    <button class="btn btn-primary" id="site-save-btn" onclick="saveSiteForm()">💾 Enregistrer tout le contenu</button>
+                    <button class="btn btn-outline" id="site-reset-btn" onclick="resetAllContent()">↩ Tout restaurer par défaut</button>
+                </div>
             </div>
         </section>
 

@@ -73,15 +73,76 @@ const DEFAULT_ADMINS = [
 const DEFAULT_SETTINGS = {acompte: 30, remise: 10, musicCost: 30000};
 
 /* ─────────── ACCÈS DONNÉES ─────────── */
-const getPrices = () => store.get('lv_prices', {});
 const getSettings = () => ({...DEFAULT_SETTINGS, ...store.get('lv_settings', {})});
-function gateaux() {
-    const ov = getPrices();
-    return DEFAULT_GATEAUX.map(g => ({...g, price: ov['gateau:' + g.id] ?? g.price}));
+
+/* Catalogue 100% modifiable (nom, prix, photos, descriptions) */
+function getCatalog() {
+    let cat = store.get('lv_catalog', null);
+    if (!cat) {
+        const ov = store.get('lv_prices', {});
+        cat = {
+            gateaux: DEFAULT_GATEAUX.map(g => ({...g, price: ov['gateau:' + g.id] ?? g.price})),
+            prestations: DEFAULT_PRESTATIONS.map(p => ({...p, price: ov['presta:' + p.id] ?? p.price}))
+        };
+        try { store.set('lv_catalog', cat); } catch {}
+    }
+    return cat;
 }
-function prestations() {
-    const ov = getPrices();
-    return DEFAULT_PRESTATIONS.map(p => ({...p, price: ov['presta:' + p.id] ?? p.price}));
+function saveCatalog(cat) {
+    try { store.set('lv_catalog', cat); return true; }
+    catch { toast('Stockage plein : image trop lourde. Essayez une photo plus légère.', 'error'); return false; }
+}
+function gateaux() { return getCatalog().gateaux; }
+function prestations() { return getCatalog().prestations; }
+
+/* Contenus du site 100% modifiables (textes, images, coordonnées) */
+const DEFAULT_SITE = {
+    brand: 'LV *Surprise* Event',
+    promoActive: true,
+    promo: "✨ Offre du moment : *-10% sur les packs Décoration + Gâteau* — Devis gratuit en 2 minutes",
+    heroBadge: "🎉 N°1 des surprises d'anniversaire sur mesure",
+    heroTitle: 'Des surprises *inoubliables*,\norganisées pour vous.',
+    heroSubtitle: "Décoration de chambre, gâteaux personnalisés, bouquets d'argent, musiciens en direct… Composez votre événement à la carte et recevez votre devis instantané.",
+    heroImage: 'images/hero.jpg',
+    gateauxHero: 'images/gateau-redvelvet.jpg',
+    prestaHero: 'images/decoration.jpg',
+    cakeInfoTitle: '🎨 Personnalisation offerte',
+    cakeInfoText: 'Message sur le gâteau, choix du parfum (vanille, chocolat, red velvet, citron, coco), décor doré ou floral — sans supplément. Tailles disponibles : 8, 12, 20 ou 30+ parts. Délai : 48h minimum, 5 jours pour les pièces montées.',
+    phone: '+237 6 90 00 00 00',
+    email: 'contact@lv-surprise.cm',
+    address: 'Douala & Yaoundé, Cameroun',
+    hours: 'Lun – Sam : 8h → 20h\nDimanche : 12h → 18h',
+    baseOrders: 240
+};
+const getSite = () => ({...DEFAULT_SITE, ...store.get('lv_site', {})});
+function saveSite(s) {
+    try { store.set('lv_site', s); return true; }
+    catch { toast('Stockage plein : image trop lourde. Essayez une photo plus légère.', 'error'); return false; }
+}
+/* *mot* → mise en avant (doré/gras/italique selon l'endroit) */
+function richText(s) { return esc(s ?? '').replace(/\*(.+?)\*/g, '<em>$1</em>'); }
+function richLines(s) { return richText(s).replace(/\n/g, '<br>'); }
+
+/* Upload + compression automatique des photos (pour tenir dans le stockage local) */
+function processImageFile(file, cb) {
+    if (!file || !file.type.startsWith('image/')) { toast('Fichier image invalide', 'error'); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+            const MAX = 900;
+            const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+            const w = Math.max(1, Math.round(img.width * scale));
+            const h = Math.max(1, Math.round(img.height * scale));
+            const cv = document.createElement('canvas');
+            cv.width = w; cv.height = h;
+            cv.getContext('2d').drawImage(img, 0, 0, w, h);
+            cb(cv.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = () => toast("Impossible de lire cette image", 'error');
+        img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
 }
 const findItem = (kind, id) => (kind === 'gateau' ? gateaux() : prestations()).find(x => x.id === id);
 const getOrders = () => store.get('lv_orders', []);
@@ -142,7 +203,28 @@ function renderCatalogs() {
         </div>`).join('');
     const s = getSettings();
     $('pack-price').textContent = fmt(Math.round((findItem('prestation', 'deco').price + findItem('gateau', 'g1').price + findItem('prestation', 'bouquet').price) * (1 - s.remise / 100)));
-    $('stat-orders').textContent = (240 + getOrders().filter(o => o.status !== 'Annulée').length) + '+';
+    $('stat-orders').textContent = (Number(getSite().baseOrders) + getOrders().filter(o => o.status !== 'Annulée').length) + '+';
+}
+
+/* Applique les contenus personnalisés (textes, images, coordonnées) */
+function renderSiteContent() {
+    const s = getSite();
+    const promoBar = $('promo-bar');
+    if (promoBar) {
+        promoBar.classList.toggle('hidden', !s.promoActive);
+        $('promo-text').innerHTML = richText(s.promo);
+    }
+    document.querySelectorAll('.js-brand').forEach(el => el.innerHTML = richText(s.brand));
+    $('hero-badge').textContent = s.heroBadge;
+    $('hero-title').innerHTML = richLines(s.heroTitle);
+    $('hero-subtitle').textContent = s.heroSubtitle;
+    $('home-hero-bg').style.backgroundImage = `url('${s.heroImage}')`;
+    $('gateaux-hero').style.backgroundImage = `url('${s.gateauxHero}')`;
+    $('prestations-hero').style.backgroundImage = `url('${s.prestaHero}')`;
+    $('cake-info-title').textContent = s.cakeInfoTitle;
+    $('cake-info-text').textContent = s.cakeInfoText;
+    $('footer-contact').innerHTML = `📍 ${esc(s.address)}<br>📞 ${esc(s.phone)}<br>✉️ ${esc(s.email)}`;
+    $('footer-hours').innerHTML = `${richLines(s.hours)}<br><br><span class="badge-open">● Disponible 7j/7 sur WhatsApp</span>`;
 }
 
 /* ─────────── PANIER / DEVIS ─────────── */
@@ -377,31 +459,33 @@ function exitAdmin() {
     $('site-footer').classList.remove('hidden');
     const promo = $('promo-bar');
     if (promo) promo.classList.remove('hidden');
-    renderCatalogs(); renderCart();
+    renderCatalogs(); renderCart(); renderSiteContent();
 }
 function applyPermissions() {
     const super_ = isSuper();
     document.querySelector('[data-admin="pricing"]').innerHTML = super_ ? '🏷️ Tarifs & catalogue' : '🏷️ Tarifs & catalogue 🔒';
+    document.querySelector('[data-admin="site"]').innerHTML = super_ ? '🌐 Contenu du site' : '🌐 Contenu du site 🔒';
 }
 function showAdmin(name) {
     if (name === 'pricing' && !isSuper()) {
         toast('Tarifs en lecture seule — modification réservée au Super Admin 🔒');
     }
+    if (name === 'site' && !isSuper()) {
+        toast('Contenu en lecture seule — modification réservée au Super Admin 🔒');
+    }
     document.querySelectorAll('.admin-view').forEach(v => v.classList.add('hidden'));
     $('admin-' + name).classList.remove('hidden');
     document.querySelectorAll('.admin-nav button').forEach(b => b.classList.toggle('active', b.dataset.admin === name));
     $('admin-sidebar').classList.remove('open');
-    const titles = {dashboard: 'Tableau de bord', orders: 'Commandes', finance: 'Gestion financière', providers: 'Prestataires', pricing: 'Tarifs & catalogue', team: 'Administrateurs'};
+    const titles = {dashboard: 'Tableau de bord', orders: 'Commandes', finance: 'Gestion financière', providers: 'Prestataires', pricing: 'Tarifs & catalogue', site: 'Contenu du site', team: 'Administrateurs'};
     $('admin-title').textContent = titles[name];
     if (name === 'dashboard') renderDashboard();
     if (name === 'orders') renderAdminOrders();
     if (name === 'finance') renderFinance();
     if (name === 'providers') renderProviders();
     if (name === 'pricing') renderPricing();
+    if (name === 'site') renderSiteForm();
     if (name === 'team') renderTeam();
-}
-function showAdminLocked(name) {
-    toast('Réservé au Super Admin 🔒', 'error');
 }
 
 /* ═══════════ ADMIN : DASHBOARD ═══════════ */
@@ -677,8 +761,8 @@ function printInvoice(id) {
     area.innerHTML = `
         <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;color:#222">
             <div style="text-align:center;border-bottom:3px solid #c9a24b;padding-bottom:14px;margin-bottom:20px">
-                <h1 style="margin:0;font-size:26px">🎁 LV Surprise Event</h1>
-                <p style="margin:4px 0;font-size:13px">Douala & Yaoundé · +237 6 90 00 00 00 · contact@lv-surprise.cm</p>
+                <h1 style="margin:0;font-size:26px">🎁 ${esc(getSite().brand.replace(/\*/g, ''))}</h1>
+                <p style="margin:4px 0;font-size:13px">${esc(getSite().address)} · ${esc(getSite().phone)} · ${esc(getSite().email)}</p>
                 <h2 style="margin:10px 0 0">FACTURE ${o.ref}</h2>
             </div>
             <p><strong>Client :</strong> ${esc(o.client)} (${esc(o.phone)})<br>
@@ -781,45 +865,117 @@ function deleteProvider(id) {
     renderProviders();
 }
 
-/* ═══════════ ADMIN : TARIFS ═══════════ */
+/* ═══════════ ADMIN : CATALOGUE (tout modifiable) ═══════════ */
 function renderPricing() {
     const super_ = isSuper();
-    if (!super_) {
-        $('pricing-gateaux').innerHTML = '<div class="perm-note">🔒 Modification des tarifs réservée au <strong>Super Admin</strong>. Tarifs actuels affichés en lecture seule.</div>' + pricingRows(gateaux(), 'gateau', true);
-        $('pricing-prestations').innerHTML = pricingRows(prestations(), 'prestation', true);
-        $('setting-acompte').value = getSettings().acompte;
-        $('setting-remise').value = getSettings().remise;
-        $('setting-music').value = getSettings().musicCost;
-        document.querySelector('#admin-pricing .panel:last-child').classList.add('locked');
-        return;
-    }
-    document.querySelector('#admin-pricing .panel:last-child').classList.remove('locked');
-    $('pricing-gateaux').innerHTML = pricingRows(gateaux(), 'gateau', false);
-    $('pricing-prestations').innerHTML = pricingRows(prestations(), 'prestation', false);
+    const lock = super_ ? '' : '<div class="perm-note">🔒 Modification réservée au <strong>Super Admin</strong> (lecture seule).</div>';
+    $('pricing-gateaux').innerHTML = lock + (gateaux().map(g => catalogEditorCard('gateau', g, !super_)).join('') || '<p class="muted">Aucun gâteau. Ajoutez-en un !</p>');
+    $('pricing-prestations').innerHTML = prestations().map(p => catalogEditorCard('prestation', p, !super_)).join('') || '<p class="muted">Aucune prestation. Ajoutez-en une !</p>';
+    $('btn-add-gateau').classList.toggle('hidden', !super_);
+    $('btn-add-presta').classList.toggle('hidden', !super_);
     $('setting-acompte').value = getSettings().acompte;
     $('setting-remise').value = getSettings().remise;
     $('setting-music').value = getSettings().musicCost;
+    document.querySelector('#admin-pricing .panel:last-child').classList.toggle('locked', !super_);
 }
-function pricingRows(list, kind, readonly) {
-    return list.map(it => `
-        <div class="pricing-row">
-            <img src="${it.img}" alt="">
-            <div><strong>${esc(it.name)}</strong><small>${esc(it.desc)}</small></div>
-            <div style="display:flex;gap:8px;align-items:center">
-                <input type="number" id="price-${kind}-${it.id}" value="${it.price}" min="0" step="500" ${readonly ? 'disabled' : ''}>
-                ${readonly ? '' : `<button class="btn-mini" onclick="savePrice('${kind}','${it.id}')">💾</button>`}
+function catalogEditorCard(kind, it, ro) {
+    const dis = ro ? 'disabled' : '';
+    const f = (k) => `f-${kind}-${it.id}-${k}`;
+    return `
+    <div class="editor-card">
+        <div class="editor-img">
+            <img src="${it.img}" alt="${esc(it.name)}">
+            ${ro ? '' : `
+            <div class="editor-img-actions">
+                <label class="btn-mini">📤 Uploader<input type="file" accept="image/*" class="hidden" onchange="uploadItemImage('${kind}','${it.id}',this)"></label>
+                <button class="btn-mini" onclick="setItemImageUrl('${kind}','${it.id}')">🔗 URL</button>
+                <button class="btn-mini" onclick="resetItemImage('${kind}','${it.id}')">↩ Défaut</button>
+            </div>`}
+        </div>
+        <div class="editor-fields">
+            <div class="form-row">
+                <div class="form-group"><label>Nom</label><input id="${f('name')}" value="${esc(it.name)}" ${dis}></div>
+                <div class="form-group"><label>Prix affiché (FCFA)</label><input id="${f('price')}" type="number" min="0" step="500" value="${it.price}" ${dis}></div>
             </div>
-        </div>`).join('');
+            <div class="form-row">
+                <div class="form-group"><label>Badge <small class="muted">(vide = aucun)</small></label><input id="${f('badge')}" value="${esc(it.badge || '')}" placeholder="Ex : Best-seller, Nouveau…" ${dis}></div>
+                <div class="form-group"><label>Couleur du badge</label><select id="${f('rose')}" ${dis}><option value="">Doré</option><option value="1" ${it.rose ? 'selected' : ''}>Rose</option></select></div>
+            </div>
+            <div class="form-group"><label>Description</label><textarea id="${f('desc')}" rows="2" ${dis}>${esc(it.desc)}</textarea></div>
+            <div class="form-group"><label>Détails / inclus <small class="muted">(encadré ✔ côté client)</small></label><input id="${f('includes')}" value="${esc(it.includes || '')}" ${dis}></div>
+            ${ro ? '' : `<div class="row-actions">
+                <button class="btn-mini pay" onclick="saveCatalogItem('${kind}','${it.id}')">💾 Enregistrer</button>
+                <button class="btn-mini danger" onclick="deleteCatalogItem('${kind}','${it.id}')">🗑 Supprimer du site</button>
+            </div>`}
+        </div>
+    </div>`;
 }
-function savePrice(kind, id) {
+function saveCatalogItem(kind, id) {
     if (!isSuper()) { toast('Réservé au Super Admin 🔒', 'error'); return; }
-    const v = Number($(`price-${kind}-${id}`).value);
-    if (v < 0) return;
-    const prices = getPrices();
-    prices[(kind === 'gateau' ? 'gateau:' : 'presta:') + id] = v;
-    store.set('lv_prices', prices);
-    renderCatalogs();
-    toast('Tarif mis à jour ✓', 'success');
+    const cat = getCatalog();
+    const it = (kind === 'gateau' ? cat.gateaux : cat.prestations).find(x => x.id === id);
+    if (!it) return;
+    const v = (k) => $('f-' + kind + '-' + id + '-' + k).value;
+    it.name = v('name').trim() || it.name;
+    it.price = Math.max(0, Number(v('price')) || 0);
+    it.badge = v('badge').trim();
+    it.rose = v('rose') === '1';
+    it.desc = v('desc').trim();
+    it.includes = v('includes').trim();
+    if (saveCatalog(cat)) { renderCatalogs(); toast('« ' + it.name + ' » mis à jour ✓', 'success'); }
+}
+function uploadItemImage(kind, id, input) {
+    const file = input.files && input.files[0];
+    input.value = '';
+    if (!file) return;
+    processImageFile(file, (dataUrl) => {
+        const cat = getCatalog();
+        const it = (kind === 'gateau' ? cat.gateaux : cat.prestations).find(x => x.id === id);
+        if (!it) return;
+        it.img = dataUrl;
+        if (saveCatalog(cat)) { renderCatalogs(); renderPricing(); toast('Photo mise à jour ✓', 'success'); }
+    });
+}
+function setItemImageUrl(kind, id) {
+    const url = prompt("Collez l'adresse (URL) de l'image :");
+    if (!url || !url.trim()) return;
+    const cat = getCatalog();
+    const it = (kind === 'gateau' ? cat.gateaux : cat.prestations).find(x => x.id === id);
+    if (!it) return;
+    it.img = url.trim();
+    if (saveCatalog(cat)) { renderCatalogs(); renderPricing(); toast('Photo mise à jour ✓', 'success'); }
+}
+function resetItemImage(kind, id) {
+    const def = (kind === 'gateau' ? DEFAULT_GATEAUX : DEFAULT_PRESTATIONS).find(x => x.id === id);
+    if (!def) { toast('Pas d\'image par défaut pour cet élément', 'error'); return; }
+    const cat = getCatalog();
+    const it = (kind === 'gateau' ? cat.gateaux : cat.prestations).find(x => x.id === id);
+    if (!it) return;
+    it.img = def.img;
+    if (saveCatalog(cat)) { renderCatalogs(); renderPricing(); toast('Image par défaut restaurée ✓', 'success'); }
+}
+function addCatalogItem(kind) {
+    if (!isSuper()) { toast('Réservé au Super Admin 🔒', 'error'); return; }
+    const cat = getCatalog();
+    const item = {
+        id: 'c' + Date.now(),
+        name: kind === 'gateau' ? 'Nouveau gâteau' : 'Nouvelle prestation',
+        price: 20000,
+        img: kind === 'gateau' ? 'images/gateau-vanille.jpg' : 'images/panier.jpg',
+        badge: 'Nouveau', rose: false,
+        desc: 'Décrivez ici votre création…',
+        includes: 'Détails et options inclus…'
+    };
+    (kind === 'gateau' ? cat.gateaux : cat.prestations).push(item);
+    if (saveCatalog(cat)) { renderCatalogs(); renderPricing(); toast('Élément ajouté — complétez ses infos puis 💾 ✓', 'success'); }
+}
+function deleteCatalogItem(kind, id) {
+    if (!isSuper()) { toast('Réservé au Super Admin 🔒', 'error'); return; }
+    if (!confirm("Supprimer cet élément du site ? (les anciennes commandes sont conservées)")) return;
+    const cat = getCatalog();
+    if (kind === 'gateau') cat.gateaux = cat.gateaux.filter(x => x.id !== id);
+    else cat.prestations = cat.prestations.filter(x => x.id !== id);
+    if (saveCatalog(cat)) { renderCatalogs(); renderPricing(); toast('Élément supprimé du site'); }
 }
 function saveSettings() {
     if (!isSuper()) { toast('Réservé au Super Admin 🔒', 'error'); return; }
@@ -832,12 +988,86 @@ function saveSettings() {
     toast('Paramètres enregistrés ✓', 'success');
 }
 
+/* ═══════════ ADMIN : CONTENU DU SITE ═══════════ */
+function renderSiteForm() {
+    const s = getSite();
+    const ro = !isSuper();
+    $('site-lock-note').classList.toggle('hidden', isSuper());
+    document.querySelectorAll('#admin-site .site-field').forEach(el => el.disabled = ro);
+    document.querySelectorAll('#admin-site .site-img-actions').forEach(el => el.classList.toggle('hidden', ro));
+    $('site-save-btn').classList.toggle('hidden', ro);
+    $('site-reset-btn').classList.toggle('hidden', ro);
+    $('site-brand').value = s.brand;
+    $('site-promo-active').checked = !!s.promoActive;
+    $('site-promo').value = s.promo;
+    $('site-hero-badge').value = s.heroBadge;
+    $('site-hero-title').value = s.heroTitle;
+    $('site-hero-subtitle').value = s.heroSubtitle;
+    $('site-cake-title').value = s.cakeInfoTitle;
+    $('site-cake-text').value = s.cakeInfoText;
+    $('site-phone').value = s.phone;
+    $('site-email').value = s.email;
+    $('site-address').value = s.address;
+    $('site-hours').value = s.hours;
+    $('site-base').value = s.baseOrders;
+    $('site-hero-preview').src = s.heroImage;
+    $('site-gateaux-preview').src = s.gateauxHero;
+    $('site-presta-preview').src = s.prestaHero;
+}
+function saveSiteForm() {
+    if (!isSuper()) { toast('Réservé au Super Admin 🔒', 'error'); return; }
+    const s = getSite();
+    s.brand = $('site-brand').value.trim() || s.brand;
+    s.promoActive = $('site-promo-active').checked;
+    s.promo = $('site-promo').value.trim();
+    s.heroBadge = $('site-hero-badge').value.trim();
+    s.heroTitle = $('site-hero-title').value.trim();
+    s.heroSubtitle = $('site-hero-subtitle').value.trim();
+    s.cakeInfoTitle = $('site-cake-title').value.trim();
+    s.cakeInfoText = $('site-cake-text').value.trim();
+    s.phone = $('site-phone').value.trim();
+    s.email = $('site-email').value.trim();
+    s.address = $('site-address').value.trim();
+    s.hours = $('site-hours').value.trim();
+    s.baseOrders = Math.max(0, Number($('site-base').value) || 0);
+    if (saveSite(s)) { renderSiteContent(); renderCatalogs(); toast('Contenu du site mis à jour ✓', 'success'); }
+}
+function uploadSiteImage(key, input) {
+    const file = input.files && input.files[0];
+    input.value = '';
+    if (!file) return;
+    processImageFile(file, (dataUrl) => {
+        const s = getSite();
+        s[key] = dataUrl;
+        if (saveSite(s)) { renderSiteContent(); renderSiteForm(); toast('Image mise à jour ✓', 'success'); }
+    });
+}
+function setSiteImageUrl(key) {
+    const url = prompt("Collez l'adresse (URL) de l'image :");
+    if (!url || !url.trim()) return;
+    const s = getSite();
+    s[key] = url.trim();
+    if (saveSite(s)) { renderSiteContent(); renderSiteForm(); toast('Image mise à jour ✓', 'success'); }
+}
+function resetSiteImage(key) {
+    const s = getSite();
+    s[key] = DEFAULT_SITE[key];
+    if (saveSite(s)) { renderSiteContent(); renderSiteForm(); toast('Image par défaut restaurée ✓', 'success'); }
+}
+function resetAllContent() {
+    if (!isSuper()) { toast('Réservé au Super Admin 🔒', 'error'); return; }
+    if (!confirm('Tout restaurer : catalogue, photos, textes, tarifs et coordonnées par défaut ?')) return;
+    store.del('lv_catalog'); store.del('lv_site'); store.del('lv_prices');
+    renderCatalogs(); renderSiteContent(); renderPricing(); renderSiteForm();
+    toast('Contenu restauré par défaut ✓', 'success');
+}
+
 /* ═══════════ ADMIN : ÉQUIPE ═══════════ */
 function renderTeam() {
     const admins = getAdmins();
     const perms = {
-        super: ['✔ Tableau de bord & statistiques', '✔ Commandes (créer, modifier, supprimer)', '✔ Finances (ajouter, supprimer, exports)', '✔ Prestataires & paiements', '✔ Tarifs & paramètres', '✔ Gestion des comptes'],
-        manager: ['✔ Tableau de bord & statistiques', '✔ Commandes (créer, modifier)', '✔ Finances (ajouter, exports)', '✔ Prestataires & paiements', '✖ Tarifs & paramètres', '✖ Gestion des comptes']
+        super: ['✔ Tableau de bord & statistiques', '✔ Commandes (créer, modifier, supprimer)', '✔ Finances (ajouter, supprimer, exports)', '✔ Prestataires & paiements', '✔ Catalogue : prix, photos, textes, ajout/suppression', '✔ Contenu du site : hero, bannières, coordonnées', '✔ Gestion des comptes'],
+        manager: ['✔ Tableau de bord & statistiques', '✔ Commandes (créer, modifier)', '✔ Finances (ajouter, exports)', '✔ Prestataires & paiements', '✖ Catalogue, photos & tarifs (lecture seule)', '✖ Contenu du site (lecture seule)', '✖ Gestion des comptes']
     };
     $('team-grid').innerHTML = admins.map(a => `
         <div class="team-card">
@@ -987,6 +1217,8 @@ document.addEventListener('DOMContentLoaded', () => {
     seedDemo();
     renderCatalogs();
     renderCart();
+    renderSiteContent();
+    updateCartBadge();
     const dateInput = $('date');
     if (dateInput) dateInput.min = todayISO();
     document.querySelectorAll('.modal-overlay').forEach(m =>
