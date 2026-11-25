@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# À remplacer par l'URL réelle du site après hébergement :
+# Sitemap: https://www.lv-surprise.cm/sitemap.xml

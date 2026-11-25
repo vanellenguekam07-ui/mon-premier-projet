@@ -1,0 +1,13 @@
+{
+  "name": "LV Surprise Event",
+  "short_name": "LV Surprise",
+  "description": "Anniversaires surprises & événements sur mesure — Douala & Yaoundé, Cameroun.",
+  "lang": "fr",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#faf6ef",
+  "theme_color": "#2a1b2e",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

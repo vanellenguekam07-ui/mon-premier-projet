@@ -1,0 +1,25 @@
+# Dépendances / build
+node_modules/
+dist/
+build/
+.next/
+.vercel/
+.netlify/
+
+# Environnement — NE JAMAIS committer les clés
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Système / éditeur
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+
+# Sauvegardes locales exportées depuis l'admin
+lv-backup-*.json
