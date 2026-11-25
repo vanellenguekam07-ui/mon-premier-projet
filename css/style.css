@@ -410,3 +410,38 @@ label.btn-mini{cursor:pointer}
 .check-line input{width:20px;height:20px;accent-color:var(--plum)}
 .promo-bar em{font-style:normal;font-weight:800}
 @media(max-width:700px){.editor-card{grid-template-columns:1fr}.editor-img img{height:200px}}
+
+/* ── Correctifs mise en service ── */
+.skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+.skip-link:focus{position:fixed;left:12px;top:12px;width:auto;height:auto;padding:10px 18px;background:var(--plum);color:#fff;border-radius:10px;z-index:300}
+.wa-float{position:fixed;right:20px;bottom:20px;z-index:150;display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;text-decoration:none;font-weight:700;font-size:.92rem;padding:13px 20px;border-radius:999px;box-shadow:0 10px 28px rgba(37,211,102,.45);transition:transform .2s}
+.wa-float:hover{transform:translateY(-3px)}
+.wa-float span{font-size:.9rem}
+.legal-body h3{margin:22px 0 8px;font-size:1.1rem}
+.legal-body h3:first-child{margin-top:0}
+.legal-body p,.legal-body li{font-size:.94rem;color:var(--ink)}
+.legal-body ul{margin:6px 0 12px 20px}
+.legal-body a{color:var(--gold-dark);font-weight:600}
+.contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.contact-actions .btn{text-decoration:none}
+.confirm-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.confirm-actions .btn{text-decoration:none}
+.payment-box{background:var(--cream);border:1.5px dashed var(--gold);border-radius:12px;padding:14px 18px;margin-top:14px;font-size:.9rem;text-align:left}
+@media(max-width:600px){.wa-float span{display:none}.wa-float{padding:14px 16px;font-size:1.2rem}}
+
+/* ── Guide admin + premiers pas + mode démo ── */
+.demo-banner{background:#fdf3d7;border:1.5px solid #e8cf8f;color:#7a5b16;border-radius:14px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:.92rem}
+.demo-banner strong{color:#5c430c}
+.onboarding{background:#fff;border:1.5px solid var(--line);border-radius:var(--radius);padding:20px 24px;margin-bottom:20px;box-shadow:var(--shadow)}
+.onboarding h3{margin-bottom:4px}
+.onboarding .ob-list{list-style:none;margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.onboarding .ob-list label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:.93rem}
+.onboarding .ob-list input{width:20px;height:20px;accent-color:var(--green);flex-shrink:0;margin-top:2px}
+.onboarding .ob-list .done{text-decoration:line-through;color:var(--muted)}
+.onboarding .ob-foot{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+.guide-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:14px}
+.guide-step{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:16px}
+.guide-step span{display:inline-flex;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--plum),var(--rose));color:#fff;font-weight:700;align-items:center;justify-content:center;margin-bottom:8px}
+.guide-step h4{margin-bottom:4px;font-size:.98rem}
+.guide-step p{font-size:.87rem;color:var(--muted)}
+.guide-list{margin:10px 0 4px 20px;display:flex;flex-direction:column;gap:8px;font-size:.93rem}

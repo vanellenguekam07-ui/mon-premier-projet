@@ -3,15 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LV Surprise Event — Anniversaires surprises &amp; événements sur mesure</title>
-    <meta name="description" content="LV Surprise Event — décorations, gâteaux sur mesure, bouquets d'argent, paniers surprises et animations musicales. Composez votre surprise en ligne.">
+    <title>LV Surprise Event — Anniversaires surprises &amp; événements sur mesure | Douala &amp; Yaoundé</title>
+    <meta name="description" content="LV Surprise Event — décorations, gâteaux sur mesure, bouquets d'argent, paniers surprises et animations musicales à Douala & Yaoundé. Composez votre surprise en ligne, devis instantané gratuit.">
+    <meta name="keywords" content="anniversaire surprise Douala, anniversaire surprise Yaoundé, gâteau sur mesure Cameroun, décoration anniversaire, bouquet d'argent, LV Surprise Event">
+    <meta name="author" content="LV Surprise Event">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#2a1b2e">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <!-- URL canonique : à remplacer par le domaine réel après hébergement -->
+    <link rel="canonical" href="https://www.lv-surprise.cm/">
+    <!-- Partage réseaux sociaux (WhatsApp, Facebook…) -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fr_CM">
+    <meta property="og:site_name" content="LV Surprise Event">
+    <meta property="og:title" content="LV Surprise Event — Des surprises inoubliables, organisées pour vous">
+    <meta property="og:description" content="Décoration, gâteaux sur mesure, bouquets d'argent et musiciens en direct à Douala & Yaoundé. Devis instantané gratuit.">
+    <meta property="og:image" content="images/hero.jpg">
+    <meta property="og:url" content="https://www.lv-surprise.cm/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="LV Surprise Event — Anniversaires surprises sur mesure">
+    <meta name="twitter:description" content="Décorations, gâteaux personnalisés, bouquets d'argent et animations musicales. Douala & Yaoundé.">
+    <meta name="twitter:image" content="images/hero.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="preload" as="image" href="images/hero.jpg">
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"LocalBusiness","name":"LV Surprise Event",
+     "description":"Anniversaires surprises sur mesure : décoration, gâteaux, bouquets d'argent, animations musicales.",
+     "areaServed":["Douala","Yaoundé"],"address":{"@type":"PostalAddress","addressLocality":"Douala","addressCountry":"CM"},
+     "priceRange":"FCFA","telephone":"+237690000000","email":"contact@lv-surprise.cm",
+     "openingHours":"Mo-Sa 08:00-20:00","image":"images/hero.jpg"}
+    </script>
 </head>
 <body>
+<a class="skip-link" href="#client-app">Aller au contenu principal</a>
+<noscript><div style="padding:16px;text-align:center;background:#fdf3d7">⚠️ Ce site nécessite JavaScript pour fonctionner. Contactez-nous par téléphone ou WhatsApp pour réserver.</div></noscript>
 
 <!-- ═══════════ BANDEAU PROMO ═══════════ -->
 <div class="promo-bar" id="promo-bar">
@@ -61,8 +91,8 @@
                     <button class="btn btn-ghost" onclick="showView('gateaux')">Découvrir nos gâteaux</button>
                 </div>
                 <div class="hero-stats">
-                    <div><strong id="stat-orders">250+</strong><span>surprises réalisées</span></div>
-                    <div><strong>4,9/5</strong><span>avis clients ⭐</span></div>
+                    <div><strong id="stat-orders">0</strong><span>surprises réalisées</span></div>
+                    <div><strong>100%</strong><span>sur mesure 🎨</span></div>
                     <div><strong>48h</strong><span>délai express possible</span></div>
                 </div>
             </div>
@@ -187,16 +217,20 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="client_name">Votre nom complet *</label>
-                                    <input type="text" id="client_name" placeholder="Ex : Vanelle Kamdem" required>
+                                    <input type="text" id="client_name" placeholder="Ex : Vanelle Kamdem" required maxlength="80" autocomplete="name">
                                 </div>
-                                <div class="form-group">
-                                    <label for="client_phone">Votre téléphone *</label>
-                                    <input type="tel" id="client_phone" placeholder="Ex : 6 90 00 00 00" required>
-                                </div>
+<form id="surprise-form" onsubmit="return submitOrder(event)" novalidate>
+                            <!-- Anti-spam : champ piège invisible pour les robots -->
+                            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0" aria-hidden="true">
+                            <div class="form-group">
+                                <label for="client_phone">Votre téléphone (Cameroun) *</label>
+                                <input type="tel" id="client_phone" placeholder="Ex : 6 90 00 00 00" required inputmode="tel" autocomplete="tel" pattern="[0-9+ .\-]{8,20}" maxlength="20">
+                                <small class="muted">Format : 6XX XX XX XX ou +237 6XX…</small>
+                            </div>
                             </div>
                             <div class="form-group">
                                 <label for="location">Adresse / Localisation du lieu *</label>
-                                <input type="text" id="location" placeholder="Ex : Akwa, Rue des Palmiers, Douala…" required>
+                                <input type="text" id="location" placeholder="Ex : Akwa, Rue des Palmiers, Douala…" required maxlength="150">
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
@@ -210,14 +244,22 @@
                             </div>
                             <div class="form-group">
                                 <label for="recipient">Nom du / de la bénéficiaire *</label>
-                                <input type="text" id="recipient" placeholder="Personne à surprendre" required>
+                                <input type="text" id="recipient" placeholder="Personne à surprendre" required maxlength="80">
                             </div>
                             <div class="form-group">
                                 <label for="message">Message / précisions (optionnel)</label>
-                                <textarea id="message" rows="3" placeholder="Thème, couleurs préférées, allergies, texte sur le gâteau…"></textarea>
+                                <textarea id="message" rows="3" maxlength="1000" placeholder="Thème, couleurs préférées, allergies, texte sur le gâteau…"></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-block">Valider ma réservation 🎉</button>
-                            <p class="form-note">En validant, vous acceptez d'être recontacté pour le versement de l'acompte de 30%. Sans engagement tant que l'acompte n'est pas versé.</p>
+                            <div class="form-group">
+                                <label for="captcha-answer">Vérification anti-spam : <span id="captcha-question">Combien font 2 + 3 ?</span> *</label>
+                                <input type="text" id="captcha-answer" inputmode="numeric" autocomplete="off" required placeholder="Votre réponse (un nombre)">
+                            </div>
+                            <label class="check-line" style="font-size:.88rem">
+                                <input type="checkbox" id="cgv-accept" required>
+                                <span>J'accepte les <a href="#" onclick="showView('legal-cgv');return false;">conditions générales</a> et la <a href="#" onclick="showView('legal-confidentialite');return false;">politique de confidentialité</a>. *</span>
+                            </label>
+                            <button type="submit" id="submit-order-btn" class="btn btn-primary btn-block">Valider ma réservation 🎉</button>
+                            <p class="form-note">En validant, vous acceptez d'être recontacté pour le versement de l'acompte de 30%. Sans engagement tant que l'acompte n'est pas versé. Vos données ne sont jamais vendues ni partagées.</p>
                         </form>
                     </div>
                 </div>
@@ -234,7 +276,7 @@
                         </div>
                         <div class="summary-guarantees">
                             <span>🔒 Devis sans engagement</span>
-                            <span>💳 MTN MoMo · Orange Money · Espèces</span>
+                            <span id="summary-payment">💳 MTN MoMo · Orange Money · Espèces</span>
                         </div>
                     </div>
                 </div>
@@ -253,10 +295,111 @@
             </div>
             <div class="panel">
                 <div class="tracking-form">
-                    <input type="text" id="tracking-input" placeholder="Référence (LV-2026-…) ou téléphone">
+                    <input type="text" id="tracking-input" placeholder="Référence (ex : LV-2026-1234)" autocomplete="off">
+                    <input type="tel" id="tracking-phone" placeholder="Téléphone de la commande" autocomplete="tel" inputmode="tel">
                     <button class="btn btn-primary" onclick="trackOrder()">Rechercher</button>
                 </div>
+                <p class="muted" style="font-size:.85rem">🔒 Pour protéger vos données, la référence <strong>et</strong> le téléphone de la commande sont tous les deux requis.</p>
                 <div id="tracking-result"></div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ───── CONTACT ───── -->
+    <section id="view-contact" class="view hidden">
+        <div class="container narrow">
+            <div class="section-head">
+                <span class="eyebrow">Nous contacter</span>
+                <h2>Parlons de votre surprise 📞</h2>
+                <p>Le plus rapide : WhatsApp. Réponse en quelques minutes pendant nos horaires d'ouverture.</p>
+            </div>
+            <div class="panel" id="contact-panel"></div>
+        </div>
+    </section>
+
+    <!-- ───── PAGES LÉGALES ───── -->
+    <section id="view-legal-cgv" class="view hidden">
+        <div class="container narrow">
+            <div class="section-head"><span class="eyebrow">Informations légales</span><h2>Conditions générales de vente</h2><p>Dernière mise à jour : à compléter par LV Surprise Event.</p></div>
+            <div class="panel legal-body">
+                <h3>1. Objet</h3>
+                <p>Les présentes conditions régissent les réservations de prestations d'événementiel sur mesure (décoration, gâteaux personnalisés, bouquets, paniers, animations musicales) proposées par <strong>LV Surprise Event</strong>, Douala &amp; Yaoundé, Cameroun.</p>
+                <h3>2. Devis et réservation</h3>
+                <p>Le devis affiché en ligne est une estimation instantanée. La réservation n'est définitive qu'après confirmation par notre équipe et versement de l'acompte (30 % par défaut, taux affiché dans le récapitulatif). Sans acompte versé, aucune date n'est bloquée.</p>
+                <h3>3. Prix</h3>
+                <p>Les prix sont en francs CFA (FCFA), taxes incluses, et comprennent la livraison et l'installation dans la zone d'intervention indiquée. Tout supplément (montant des billets du bouquet, options spéciales) est précisé avant confirmation.</p>
+                <h3>4. Paiement</h3>
+                <p>Acompte à la réservation, solde le jour de l'événement. Moyens acceptés : espèces, MTN Mobile Money, Orange Money (numéros communiqués lors de la confirmation). Voir la page <a href="#" onclick="showView('legal-paiement');return false;">Paiements &amp; annulation</a>.</p>
+                <h3>5. Annulation et report</h3>
+                <p>Annulation plus de 72 h avant l'événement : acompte remboursé ou report gratuit une fois. Moins de 72 h : acompte conservé, solde non dû. En cas d'empêchement de notre part, remboursement intégral.</p>
+                <h3>6. Responsabilité</h3>
+                <p>Le client s'engage à fournir des informations exactes (date, lieu, accès). LV Surprise Event ne saurait être tenu responsable des retards dus à des informations inexactes ou à un accès impossible au lieu de l'événement.</p>
+                <h3>7. Litiges</h3>
+                <p>En cas de litige, les parties rechercheront d'abord une solution amiable. À défaut, compétence des juridictions camerounaises.</p>
+                <p class="muted">⚠️ Document à faire valider par un professionnel du droit avant l'ouverture commerciale. Coordonnées complètes (raison sociale, RCCM, NIU) à compléter dans les mentions légales.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-legal-paiement" class="view hidden">
+        <div class="container narrow">
+            <div class="section-head"><span class="eyebrow">Informations légales</span><h2>Paiements &amp; annulation</h2></div>
+            <div class="panel legal-body">
+                <h3>Comment payer ?</h3>
+                <ul>
+                    <li><strong>Acompte de 30 %</strong> à la réservation pour bloquer la date.</li>
+                    <li><strong>Solde le jour J</strong>, avant ou après l'installation selon accord.</li>
+                    <li>Moyens acceptés : <strong>espèces, MTN Mobile Money, Orange Money</strong>. Les numéros exacts vous sont communiqués par WhatsApp lors de la confirmation — ne payez jamais un numéro différent sans vérification téléphonique.</li>
+                </ul>
+                <h3>Annuler ou reporter</h3>
+                <ul>
+                    <li>Plus de 72 h avant : remboursement de l'acompte ou report gratuit (1 fois).</li>
+                    <li>Moins de 72 h : acompte conservé (matières et équipe déjà mobilisées), solde non dû.</li>
+                    <li>Pour annuler : contactez-nous par téléphone/WhatsApp avec votre référence (ex : LV-2026-1234).</li>
+                </ul>
+                <h3>Remboursement</h3>
+                <p>Les remboursements sont effectués sous 7 jours ouvrés par le même moyen de paiement, sur présentation de la référence de commande.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-legal-confidentialite" class="view hidden">
+        <div class="container narrow">
+            <div class="section-head"><span class="eyebrow">Informations légales</span><h2>Politique de confidentialité</h2></div>
+            <div class="panel legal-body">
+                <h3>Données collectées</h3>
+                <p>Pour traiter votre réservation, nous collectons uniquement : nom, téléphone, lieu et date de l'événement, nom du bénéficiaire et votre message. Ces données servent exclusivement à l'organisation de votre surprise.</p>
+                <h3>Utilisation</h3>
+                <ul>
+                    <li>Préparation et livraison de votre commande.</li>
+                    <li>Contact téléphonique/WhatsApp pour confirmation et paiement de l'acompte.</li>
+                    <li>Facturation et suivi comptable (obligations légales).</li>
+                </ul>
+                <p>Vos données ne sont <strong>ni vendues, ni cédées, ni utilisées à des fins publicitaires</strong> sans votre accord.</p>
+                <h3>Conservation</h3>
+                <p>Les données de commande sont conservées le temps nécessaire à la gestion de la relation client et aux obligations comptables, puis archivées de manière sécurisée.</p>
+                <h3>Vos droits</h3>
+                <p>Vous pouvez demander l'accès, la rectification ou la suppression de vos données à tout moment par téléphone, WhatsApp ou email (coordonnées page Contact). Réponse sous 72 h.</p>
+                <h3>Cookies / stockage local</h3>
+                <p>Ce site utilise le stockage local de votre navigateur pour conserver votre devis en cours. Aucun cookie publicitaire n'est déposé.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="view-legal-mentions" class="view hidden">
+        <div class="container narrow">
+            <div class="section-head"><span class="eyebrow">Informations légales</span><h2>Mentions légales</h2></div>
+            <div class="panel legal-body" id="legal-mentions-body">
+                <h3>Éditeur du site</h3>
+                <p><strong>LV Surprise Event</strong> — Douala &amp; Yaoundé, Cameroun.<br>
+                Téléphone / WhatsApp : <span id="legal-phone">+237 6 90 00 00 00</span><br>
+                Email : <span id="legal-email">contact@lv-surprise.cm</span></p>
+                <p class="muted">⚠️ À compléter avant l'ouverture : raison sociale complète, RCCM, NIU, adresse du siège, directeur de publication, hébergeur.</p>
+                <h3>Hébergement</h3>
+                <p>Site hébergé par un prestataire professionnel (nom et coordonnées à compléter après choix de l'hébergeur).</p>
+                <h3>Propriété intellectuelle</h3>
+                <p>L'ensemble des contenus du site (textes, photos, logo) est protégé. Toute reproduction sans autorisation est interdite. Les photos de gâteaux et prestations sont des exemples illustratifs.</p>
             </div>
         </div>
     </section>
@@ -269,7 +412,7 @@
         <div>
             <div class="brand"><span class="brand-gift">🎁</span><span class="brand-text js-brand">LV <em>Surprise</em> Event</span></div>
             <p>L'atelier des surprises sur mesure : décoration, pâtisserie, bouquets et animations pour des moments inoubliables.</p>
-            <p class="footer-contact" id="footer-contact">📍 Douala &amp; Yaoundé, Cameroun<br>📞 +237 6 90 00 00 00<br>✉️ contact@lv-surprise.cm</p>
+            <p class="footer-contact" id="footer-contact"></p>
         </div>
         <div>
             <h4>Catalogue</h4>
@@ -280,8 +423,11 @@
         </div>
         <div>
             <h4>Informations</h4>
-            <a href="#" onclick="toast('Page en cours de rédaction');return false;">Conditions générales</a>
-            <a href="#" onclick="toast('Acompte 30% · Solde le jour J · Annulation 72h');return false;">Paiements &amp; annulation</a>
+            <a href="#" onclick="showView('legal-cgv');return false;">Conditions générales</a>
+            <a href="#" onclick="showView('legal-paiement');return false;">Paiements &amp; annulation</a>
+            <a href="#" onclick="showView('legal-confidentialite');return false;">Confidentialité</a>
+            <a href="#" onclick="showView('legal-mentions');return false;">Mentions légales</a>
+            <a href="#" onclick="showView('contact');return false;">Nous contacter</a>
             <a href="#" onclick="openLogin();return false;">🔐 Espace Pro (Admin)</a>
         </div>
         <div>
@@ -308,6 +454,7 @@
             <button data-admin="pricing" onclick="showAdmin('pricing')">🏷️ Tarifs &amp; catalogue</button>
             <button data-admin="site" onclick="showAdmin('site')">🌐 Contenu du site</button>
             <button data-admin="team" onclick="showAdmin('team')">👥 Administrateurs</button>
+            <button data-admin="guide" onclick="showAdmin('guide')">📖 Guide d'utilisation</button>
         </nav>
         <div class="admin-sidebar-foot">
             <button class="btn btn-ghost light" onclick="exitAdmin()">← Retour au site</button>
@@ -324,6 +471,8 @@
 
         <!-- DASHBOARD -->
         <section id="admin-dashboard" class="admin-view">
+            <div id="demo-banner"></div>
+            <div id="onboarding-box"></div>
             <div class="kpi-grid">
                 <div class="kpi kpi-gold"><small>Chiffre d'affaires</small><strong id="kpi-ca">0</strong><span id="kpi-ca-sub"></span></div>
                 <div class="kpi kpi-green"><small>Encaissé</small><strong id="kpi-encaisse">0</strong><span id="kpi-encaisse-sub"></span></div>
@@ -537,6 +686,10 @@
                     <div class="form-group"><label>Téléphone</label><input id="site-phone" class="site-field"></div>
                     <div class="form-group"><label>Email</label><input id="site-email" class="site-field"></div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group"><label>WhatsApp (numéro de réception des commandes, format international sans +)</label><input id="site-whatsapp" class="site-field" placeholder="Ex : 237690000000"></div>
+                    <div class="form-group"><label>Moyens de paiement affichés au client (MoMo, Orange Money…)</label><input id="site-payment" class="site-field" placeholder="Ex : MTN MoMo 6 90 00 00 00 (Vanelle L.)"></div>
+                </div>
                 <div class="form-group"><label>Adresse / zone d'intervention</label><input id="site-address" class="site-field"></div>
                 <div class="form-row">
                     <div class="form-group"><label>Horaires <small class="muted">(une ligne = un saut de ligne)</small></label><textarea id="site-hours" class="site-field" rows="2"></textarea></div>
@@ -571,8 +724,79 @@
             </div>
             <div class="panel danger-zone">
                 <h3>🗑️ Zone dangereuse</h3>
-                <p class="muted">Réinitialise les commandes de démonstration et le journal financier.</p>
-                <button class="btn btn-danger btn-sm" onclick="resetDemoData()">Réinitialiser les données de démo</button>
+                <p class="muted">Sauvegarde complète (commandes, finances, catalogue, contenus) au format JSON. Conservez ce fichier en lieu sûr.</p>
+                <div class="row-actions">
+                    <button class="btn btn-outline btn-sm" onclick="exportBackup()">⬇ Exporter la sauvegarde</button>
+                    <label class="btn btn-outline btn-sm" style="cursor:pointer">⬆ Importer une sauvegarde<input type="file" accept="application/json" class="hidden" onchange="importBackup(this)"></label>
+                </div>
+                <hr style="margin:18px 0;border:none;border-top:1px solid var(--line)">
+                <p class="muted">Données de test : charge des exemples fictifs pour découvrir l'admin, ou purge les données de démonstration déjà présentes.</p>
+                <div class="row-actions">
+                    <button class="btn btn-outline btn-sm" onclick="resetDemoData()">Charger des données de test</button>
+                    <button class="btn btn-danger btn-sm" onclick="purgeDemoData()">Purger les données de démonstration</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- GUIDE D'UTILISATION -->
+        <section id="admin-guide" class="admin-view hidden">
+            <div class="panel" style="background:linear-gradient(120deg,#fdf6e7,#fff);border:1.5px solid var(--gold)">
+                <h3>👋 Bienvenue dans l'espace Pro — mode d'emploi simple</h3>
+                <p class="muted">Ce guide explique tout en langage simple. Pas besoin de tout lire d'un coup : revenez ici quand vous avez un doute. <strong>Le plus important au quotidien : l'onglet 🧾 Commandes.</strong></p>
+            </div>
+
+            <div class="panel">
+                <h3>🧪 Mode démo (données fictives pour s'entraîner)</h3>
+                <p class="muted">Pour découvrir l'admin sans risque, chargez des fausses commandes, testez tout, puis <strong>purgez-les avant l'ouverture</strong>. Les données de test sont signalées par une bannière orange sur le tableau de bord.</p>
+                <div class="row-actions" style="margin-top:12px">
+                    <button class="btn btn-outline btn-sm" onclick="resetDemoData()">▶ Charger des données de test</button>
+                    <button class="btn btn-danger btn-sm" onclick="purgeDemoData()">🗑 Purger les données de test</button>
+                    <button class="btn btn-outline btn-sm" onclick="exportBackup()">⬇ Exporter ma sauvegarde</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>🎁 Le parcours d'une commande, étape par étape</h3>
+                <div class="guide-steps">
+                    <div class="guide-step"><span>1</span><h4>Le client compose</h4><p>Il choisit gâteaux + prestations sur le site, le total et l'acompte (30 %) s'affichent tout seuls.</p></div>
+                    <div class="guide-step"><span>2</span><h4>Il valide</h4><p>Il remplit nom, téléphone, date, lieu… puis clique « Valider ma réservation ». Il reçoit une référence (ex : LV-2026-1234).</p></div>
+                    <div class="guide-step"><span>3</span><h4>Il confirme sur WhatsApp</h4><p>Un bouton lui ouvre WhatsApp avec le récapitulatif déjà écrit. Il appuie sur « Envoyer ». <strong>C'est ce message qui vous prévient.</strong></p></div>
+                    <div class="guide-step"><span>4</span><h4>Vous encaissez l'acompte</h4><p>Le client paie par MoMo / Orange Money / espèces. Dans 🧾 Commandes → « Gérer » → <strong>Encaisser acompte</strong>. La commande passe « Confirmée ».</p></div>
+                    <div class="guide-step"><span>5</span><h4>Jour J</h4><p>Livraison + installation. Encaissez le solde (bouton « Encaisser solde »), puis passez le statut à « Livrée ».</p></div>
+                    <div class="guide-step"><span>6</span><h4>Clôture</h4><p>Commande « Soldée » + « Livrée ». Le client peut suivre sa commande avec sa référence + son téléphone.</p></div>
+                </div>
+                <p class="muted" style="margin-top:10px">💡 <strong>Moyens de paiement :</strong> MTN MoMo, Orange Money, espèces — le paiement se fait <strong>manuellement</strong> (le client vous envoie la capture sur WhatsApp, vous cliquez « Encaisser »). Il n'y a pas de paiement automatique par carte sur le site.</p>
+            </div>
+
+            <div class="panel">
+                <h3>📋 Que faire chaque jour ? (routine 5 minutes)</h3>
+                <ul class="guide-list">
+                    <li>📱 Ouvrez WhatsApp : avez-vous de nouvelles demandes ?</li>
+                    <li>🧾 Onglet Commandes : filtrez « En attente » → appelez les clients pour l'acompte.</li>
+                    <li>💰 Après chaque encaissement, cliquez bien sur « Encaisser » pour que les finances soient à jour.</li>
+                    <li>🎷 Si la commande inclut des musiciens : onglet Prestataires → « Payer » quand c'est fait.</li>
+                    <li>⬇ Une fois par semaine : onglet Équipe → « Exporter la sauvegarde » et gardez le fichier.</li>
+                </ul>
+            </div>
+
+            <div class="panel">
+                <h3>✏️ Changer un prix, une photo ou un texte</h3>
+                <ul class="guide-list">
+                    <li><strong>Un prix ou une photo :</strong> onglet 🏷️ Tarifs &amp; catalogue → modifiez → 💾 Enregistrer. (Super Admin uniquement)</li>
+                    <li><strong>Le texte d'accueil, le téléphone, le WhatsApp, les numéros MoMo :</strong> onglet 🌐 Contenu du site → modifiez → « Enregistrer tout ».</li>
+                    <li><strong>Une dépense</strong> (ballons, carburant…) : onglet 💰 Finances → formulaire « Ajouter une opération ».</li>
+                    <li><strong>Un nouveau musicien :</strong> onglet 🎷 Prestataires → « + Ajouter ».</li>
+                </ul>
+            </div>
+
+            <div class="panel">
+                <h3>❓ Questions fréquentes</h3>
+                <ul class="guide-list">
+                    <li><strong>« Je ne vois pas la commande du client dans l'admin, pourquoi ? »</strong> En mode actuel, les commandes sont gardées dans le navigateur du client. C'est pour cela que la confirmation WhatsApp est essentielle : elle vous transmet tout. La synchro automatique entre appareils arrivera avec Supabase (voir DEPLOY.md).</li>
+                    <li><strong>« Le client dit qu'il a payé, que faire ? »</strong> Vérifiez la capture MoMo, puis cliquez « Encaisser acompte/solde » dans la commande.</li>
+                    <li><strong>« J'ai perdu mes données ! »</strong> Si vous avez exporté une sauvegarde, réimportez-la (onglet Équipe). Pensez à exporter régulièrement.</li>
+                    <li><strong>« Comment annuler une commande ? »</strong> Ouvrez-la → changez le statut en « Annulée ».</li>
+                </ul>
             </div>
         </section>
     </div>
@@ -590,9 +814,9 @@
             <button class="btn btn-primary btn-block" type="submit">Se connecter</button>
         </form>
         <div class="login-hint">
-            <strong>Comptes de démonstration :</strong><br>
-            👑 Super Admin → <code>vanelle</code> / <code>vanelle2026</code><br>
-            🧑‍💼 Manager → <code>assistant</code> / <code>assistant2026</code>
+            🔒 Accès réservé aux administrateurs autorisés.<br>
+            <span id="login-lock-msg" class="hidden" style="color:var(--red);font-weight:700"></span>
+            <span id="login-force-msg" class="hidden" style="color:#7a5b16;font-weight:700"></span>
         </div>
     </div>
 </div>
@@ -605,8 +829,10 @@
     </div>
 </div>
 
+<a class="wa-float" id="wa-float" href="#" target="_blank" rel="noopener" aria-label="Nous contacter sur WhatsApp">💬<span>WhatsApp</span></a>
 <div class="toast-wrap" id="toast-wrap"></div>
 
+<script src="js/config.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
