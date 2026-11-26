@@ -291,11 +291,11 @@
             <div class="section-head">
                 <span class="eyebrow">Espace client</span>
                 <h2>Suivre ma commande 📦</h2>
-                <p>Retrouvez votre référence sur votre confirmation de réservation (ex : LV-2026-XXXX).</p>
+                <p>Retrouvez votre référence sur votre confirmation de réservation (ex : LV-2026-XXXXXX).</p>
             </div>
             <div class="panel">
                 <div class="tracking-form">
-                    <input type="text" id="tracking-input" placeholder="Référence (ex : LV-2026-1234)" autocomplete="off">
+                    <input type="text" id="tracking-input" placeholder="Référence (ex : LV-2026-123456)" autocomplete="off">
                     <input type="tel" id="tracking-phone" placeholder="Téléphone de la commande" autocomplete="tel" inputmode="tel">
                     <button class="btn btn-primary" onclick="trackOrder()">Rechercher</button>
                 </div>
@@ -356,7 +356,7 @@
                 <ul>
                     <li>Plus de 72 h avant : remboursement de l'acompte ou report gratuit (1 fois).</li>
                     <li>Moins de 72 h : acompte conservé (matières et équipe déjà mobilisées), solde non dû.</li>
-                    <li>Pour annuler : contactez-nous par téléphone/WhatsApp avec votre référence (ex : LV-2026-1234).</li>
+                    <li>Pour annuler : contactez-nous par téléphone/WhatsApp avec votre référence (ex : LV-2026-123456).</li>
                 </ul>
                 <h3>Remboursement</h3>
                 <p>Les remboursements sont effectués sous 7 jours ouvrés par le même moyen de paiement, sur présentation de la référence de commande.</p>
@@ -466,6 +466,7 @@
         <div class="admin-topbar">
             <button class="burger" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">☰</button>
             <h2 id="admin-title">Tableau de bord</h2>
+            <span class="cloud-badge local" id="cloud-status" title="État de la synchronisation">💾 Mode local</span>
             <span class="admin-date" id="admin-date"></span>
         </div>
 
@@ -708,8 +709,29 @@
         <section id="admin-team" class="admin-view hidden">
             <div class="panel">
                 <h3>👥 Les administrateurs</h3>
-                <p class="muted">Deux comptes gèrent la boutique. Le <strong>Super Admin</strong> a tous les droits ; le <strong>Manager</strong> gère commandes, finances et prestataires, sans accès aux tarifs ni à la gestion des comptes.</p>
+                <p class="muted">Les rôles sont contrôlés <strong>par le serveur</strong> : un Manager ne peut pas modifier les tarifs, le contenu du site ni les comptes, même en manipulant son navigateur. Le <strong>Super Admin</strong> a tous les droits.</p>
                 <div class="team-grid" id="team-grid"></div>
+            </div>
+            <div class="panel hidden" id="team-manage">
+                <h3>➕ Ajouter un membre / réinitialiser un mot de passe</h3>
+                <p class="muted">Choisissez le rôle, puis communiquez l'identifiant et le mot de passe provisoire à la personne. Elle devra le changer à sa première connexion.</p>
+                <form id="team-form" onsubmit="return saveTeamMember(event)" class="fin-form">
+                    <div class="form-row">
+                        <div class="form-group"><label>Identifiant de connexion</label><input id="tm-user" required placeholder="ex : boris" autocomplete="off"></div>
+                        <div class="form-group"><label>Rôle</label>
+                            <select id="tm-role">
+                                <option value="manager">🧑‍💼 Manager (commandes, finances, prestataires)</option>
+                                <option value="super">👑 Super Admin (tous les droits)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Nom affiché</label><input id="tm-name" required placeholder="ex : Boris M."></div>
+                        <div class="form-group"><label>Fonction</label><input id="tm-title" placeholder="ex : Manager événementiel"></div>
+                    </div>
+                    <div class="form-group"><label>Mot de passe provisoire <small class="muted">(10 caractères min — laisser vide pour ne pas changer)</small></label><input type="password" id="tm-pass" autocomplete="new-password"></div>
+                    <button class="btn btn-primary" type="submit">💾 Enregistrer le compte</button>
+                </form>
             </div>
             <div class="panel">
                 <h3>🔑 Changer mon mot de passe</h3>
@@ -746,6 +768,26 @@
             </div>
 
             <div class="panel">
+                <h3>🟢 Vos données sont synchronisées (multi-appareils)</h3>
+                <p class="muted">En haut de l'espace Pro, un badge indique l'état de la connexion :</p>
+                <ul class="guide-list">
+                    <li><strong>🟢 Synchronisé</strong> — tout est enregistré sur le serveur : vos commandes, tarifs, photos et textes sont <strong>visibles par tous les clients</strong> et sur tous vos appareils (téléphone, ordinateur).</li>
+                    <li><strong>💾 Mode local</strong> — le serveur n'est pas joignable (ou non configuré) : les données restent dans ce navigateur uniquement.</li>
+                </ul>
+                <p class="muted" style="margin-top:8px">👉 Dès que vous cliquez « 💾 Enregistrer » dans <strong>Tarifs</strong> ou <strong>Contenu du site</strong>, le changement est publié immédiatement pour les visiteurs : pas besoin de toucher au code.</p>
+            </div>
+
+            <div class="panel">
+                <h3>🔐 Les rôles, pour de vrai</h3>
+                <p class="muted">Les permissions sont vérifiées <strong>par le serveur</strong> (la base de données), pas seulement par le navigateur : impossible de les contourner.</p>
+                <ul class="guide-list">
+                    <li><strong>👑 Super Admin</strong> (vous) — tout : commandes, finances, prestataires, tarifs, photos, contenu du site, ajout/retrait de comptes.</li>
+                    <li><strong>🧑‍💼 Manager</strong> (assistant) — commandes, finances, prestataires. Tarifs, contenu du site et comptes restent <strong>en lecture seule</strong>.</li>
+                </ul>
+                <p class="muted" style="margin-top:8px">👉 Pour donner l'accès à quelqu'un : onglet <strong>Administrateurs</strong> → « Ajouter un membre » → choisissez le rôle et un mot de passe provisoire (10 caractères min). La personne devra le changer à sa 1ʳᵉ connexion. Pour retirer un accès : « Retirer ce compte ».</p>
+            </div>
+
+            <div class="panel">
                 <h3>🧪 Mode démo (données fictives pour s'entraîner)</h3>
                 <p class="muted">Pour découvrir l'admin sans risque, chargez des fausses commandes, testez tout, puis <strong>purgez-les avant l'ouverture</strong>. Les données de test sont signalées par une bannière orange sur le tableau de bord.</p>
                 <div class="row-actions" style="margin-top:12px">
@@ -759,7 +801,7 @@
                 <h3>🎁 Le parcours d'une commande, étape par étape</h3>
                 <div class="guide-steps">
                     <div class="guide-step"><span>1</span><h4>Le client compose</h4><p>Il choisit gâteaux + prestations sur le site, le total et l'acompte (30 %) s'affichent tout seuls.</p></div>
-                    <div class="guide-step"><span>2</span><h4>Il valide</h4><p>Il remplit nom, téléphone, date, lieu… puis clique « Valider ma réservation ». Il reçoit une référence (ex : LV-2026-1234).</p></div>
+                    <div class="guide-step"><span>2</span><h4>Il valide</h4><p>Il remplit nom, téléphone, date, lieu… puis clique « Valider ma réservation ». Il reçoit une référence (ex : LV-2026-123456).</p></div>
                     <div class="guide-step"><span>3</span><h4>Il confirme sur WhatsApp</h4><p>Un bouton lui ouvre WhatsApp avec le récapitulatif déjà écrit. Il appuie sur « Envoyer ». <strong>C'est ce message qui vous prévient.</strong></p></div>
                     <div class="guide-step"><span>4</span><h4>Vous encaissez l'acompte</h4><p>Le client paie par MoMo / Orange Money / espèces. Dans 🧾 Commandes → « Gérer » → <strong>Encaisser acompte</strong>. La commande passe « Confirmée ».</p></div>
                     <div class="guide-step"><span>5</span><h4>Jour J</h4><p>Livraison + installation. Encaissez le solde (bouton « Encaisser solde »), puis passez le statut à « Livrée ».</p></div>
@@ -814,7 +856,7 @@
             <button class="btn btn-primary btn-block" type="submit">Se connecter</button>
         </form>
         <div class="login-hint">
-            🔒 Accès réservé aux administrateurs autorisés.<br>
+            🔒 Accès réservé aux administrateurs autorisés (vérifié par le serveur).<br>
             <span id="login-lock-msg" class="hidden" style="color:var(--red);font-weight:700"></span>
             <span id="login-force-msg" class="hidden" style="color:#7a5b16;font-weight:700"></span>
         </div>
@@ -833,6 +875,7 @@
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script src="js/config.js"></script>
+<script src="js/cloud.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
