@@ -13,24 +13,29 @@ Le site est corrigé et testé en local. Il reste ces étapes **externes au code
 
 ## 2. Héberger le site statique — Vercel (choisi)
 Le fichier `vercel.json` est déjà prêt (site statique, en-têtes de sécurité, cache images).
-- [ ] Dans Vercel : **Add New → Project → Import** le dépôt GitHub `mon-premier-projet` (Framework : *Other*, Build : vide, Output : `.`)
+- [x] Projet Vercel **lv-surprise-event** relié au dépôt GitHub **LV-EVENT-COPI** (branche `main`) (Framework : *Other*, Build : vide, Output : `.`)
 - [ ] Ou déploiement via l'assistant Arena (connecteur Vercel) sur demande
-- [ ] L'URL publique sera du type `mon-premier-projet.vercel.app` (HTTPS inclus, gratuit)
+- [x] URL publique en ligne : **https://lv-surprise-event.vercel.app** (HTTPS inclus, gratuit)
 - [ ] Acheter le domaine (ex : `lv-surprise.cm`) et le brancher dans Vercel → Domains
 - [ ] Remplacer les URL `https://www.lv-surprise.cm/` dans `index.html`, `robots.txt`, `sitemap.xml`, `manifest.webmanifest`
 - [ ] Tester sur mobile (4G) : vitesse, formulaire, WhatsApp, suivi
 
-> ⚠️ **Important :** Vercel héberge uniquement les fichiers du site. Il ne crée pas de base de données :
-> après déploiement, le fonctionnement reste identique à l'aperçu actuel (données dans le navigateur,
-> confirmation par WhatsApp). Voir l'étape 3 pour la synchro multi-appareils.
+> ℹ️ Vercel héberge les fichiers du site ; la base de données est chez Supabase (étape 3, déjà faite).
+> Chaque `git push` sur le dépôt redéploie automatiquement le site en ~1 minute.
 
-## 3. Base de données partagée (Supabase) — recommandé avant l'ouverture
-Sans cette étape, les commandes restent dans le navigateur du client et **l'admin ne les voit pas** sur un autre appareil.
-- [ ] Créer un projet Supabase (gratuit)
-- [ ] Exécuter `supabase/schema.sql` dans SQL Editor
-- [ ] Créer les comptes admin dans Supabase Auth, **désactiver l'inscription publique**
-- [ ] Renseigner `SUPABASE_URL` + clé `anon` dans `js/config.js` (jamais la clé `service_role`)
-- [ ] Brancher `js/app.js` sur Supabase (remplacer les appels `localStorage` par les requêtes — schéma prêt)
+## 3. Base de données partagée (Supabase) — ✅ FAIT
+Le site n'est plus limité au navigateur : commandes, tarifs, photos et textes vivent dans la base.
+- [x] Projet Supabase **lv-surprise-event** créé (région eu-west-1, plan gratuit)
+- [x] Tables `admins`, `admin_sessions`, `orders`, `transactions`, `providers`, `site_content`
+- [x] Règles **RLS** : rôles super / manager réellement appliqués par PostgreSQL
+- [x] Mots de passe hachés en **bcrypt** côté serveur + verrouillage après 5 échecs
+- [x] `js/config.js` rempli (URL + clé *publishable* — clé publique, sans risque)
+- [x] `js/cloud.js` : synchronisation (lecture contenu public, commandes, finances, comptes)
+- [ ] **Changer les mots de passe** des deux comptes (onglet Administrateurs) — obligatoire
+- [ ] Vérifier le badge « 🟢 Synchronisé » en haut de l'espace Pro, sur téléphone **et** ordinateur
+
+> ⚠️ Ne mettez jamais la clé `service_role` / « secret » dans `js/config.js` : la clé publique
+> suffit, et les rôles sont contrôlés par la base.
 
 ## 4. Légal & business (Cameroun)
 - [ ] Faire valider CGV / confidentialité / mentions légales par un professionnel

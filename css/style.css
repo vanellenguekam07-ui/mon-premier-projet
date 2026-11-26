@@ -445,3 +445,31 @@ label.btn-mini{cursor:pointer}
 .guide-step h4{margin-bottom:4px;font-size:.98rem}
 .guide-step p{font-size:.87rem;color:var(--muted)}
 .guide-list{margin:10px 0 4px 20px;display:flex;flex-direction:column;gap:8px;font-size:.93rem}
+
+/* ═══════════ SYNCHRO CLOUD (badge d'état) ═══════════ */
+.cloud-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .2px;
+    white-space: nowrap;
+    cursor: help;
+}
+.cloud-badge.on {
+    background: rgba(29, 158, 108, .14);
+    color: #137a53;
+    border: 1px solid rgba(29, 158, 108, .35);
+}
+.cloud-badge.local {
+    background: rgba(201, 162, 75, .16);
+    color: #8a6a1f;
+    border: 1px solid rgba(201, 162, 75, .4);
+}
+@media (max-width: 720px) {
+    .cloud-badge { font-size: 11px; padding: 4px 9px; }
+    .admin-topbar .cloud-badge { display: none; }
+}

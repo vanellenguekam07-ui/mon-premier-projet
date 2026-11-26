@@ -129,8 +129,9 @@ function getCatalog() {
     return cat;
 }
 function saveCatalog(cat) {
-    try { store.set('lv_catalog', cat); return true; }
-    catch { toast('Stockage plein : image trop lourde. Essayez une photo plus légère.', 'error'); return false; }
+    try { store.set('lv_catalog', cat); } catch { toast('Stockage plein : image trop lourde. Essayez une photo plus légère.', 'error'); return false; }
+    pushContent('catalog', cat);
+    return true;
 }
 function gateaux() { return getCatalog().gateaux; }
 function prestations() { return getCatalog().prestations; }
@@ -158,8 +159,9 @@ const DEFAULT_SITE = {
 };
 const getSite = () => ({...DEFAULT_SITE, ...store.get('lv_site', {})});
 function saveSite(s) {
-    try { store.set('lv_site', s); return true; }
-    catch { toast('Stockage plein : image trop lourde. Essayez une photo plus légère.', 'error'); return false; }
+    try { store.set('lv_site', s); } catch { toast('Stockage plein : image trop lourde. Essayez une photo plus légère.', 'error'); return false; }
+    pushContent('site', s);
+    return true;
 }
 /* *mot* → mise en avant (doré/gras/italique selon l'endroit) */
 function richText(s) { return esc(s ?? '').replace(/\*(.+?)\*/g, '<em>$1</em>'); }
@@ -199,8 +201,29 @@ const currentAdmin = () => {
     const s = store.get('lv_session', null);
     if (!s) return null;
     if (Date.now() - (s.at || 0) > SESSION_TTL) { store.del('lv_session'); return null; } // session expirée
+    if (s.profile) return s.profile; // session serveur : rôle fourni par la base
     return getAdmins().find(a => a.username === s.username) || null;
 };
+const cloudOn = () => Boolean(window.LVCloud && LVCloud.enabled);
+/* Écrit côté serveur (uniquement si le rôle connecté y a droit) */
+function pushContent(key, value) {
+    if (!cloudOn() || !LVCloud.canWrite()) return;
+    LVCloud.setContent(key, value).catch(e => toast('Synchro serveur : ' + e.message, 'error'));
+}
+/* Récupère le contenu publié côté serveur (visible par TOUS les visiteurs) */
+async function syncPublicContent() {
+    if (!cloudOn()) return false;
+    try {
+        const c = await LVCloud.pullContent();
+        if (c.settings) store.set('lv_settings', {...DEFAULT_SETTINGS, ...c.settings});
+        if (c.catalog && (Array.isArray(c.catalog.gateaux) || Array.isArray(c.catalog.prestations))) store.set('lv_catalog', c.catalog);
+        if (c.site) store.set('lv_site', {...DEFAULT_SITE, ...c.site});
+        return true;
+    } catch (e) {
+        console.warn('Sync contenu :', e.message);
+        return false;
+    }
+}
 /* Migration : anciens mots de passe en clair → hachés (une seule fois) */
 async function migrateAdminPasswords() {
     const admins = store.get('lv_admins', null);
@@ -407,7 +430,8 @@ function renderCart() {
 function genRef() {
     const year = new Date().getFullYear();
     let ref;
-    do { ref = `LV-${year}-${Math.floor(1000 + Math.random() * 9000)}`; }
+    // 6 chiffres : évite les doublons entre plusieurs appareils (contrainte unique en base)
+    do { ref = `LV-${year}-${Math.floor(100000 + Math.random() * 900000)}`; }
     while (getOrders().some(o => o.ref === ref));
     return ref;
 }
@@ -455,6 +479,11 @@ function submitOrder(e) {
     };
     if (btn) btn.disabled = true;
     const orders = getOrders(); orders.push(order); saveOrders(orders);
+    if (cloudOn()) {
+        LVCloud.insertOrder(order)
+            .then(() => toast('Commande transmise à la boutique ✓', 'success'))
+            .catch(err => toast('⚠️ Commande gardée sur cet appareil — envoyez-la sur WhatsApp. (' + err.message + ')', 'error'));
+    }
     saveCart([]); renderCart(); renderCatalogs();
     $('surprise-form').reset();
     $('order-confirmation').classList.remove('hidden');
@@ -491,17 +520,29 @@ function payBadge(p) {
     const map = {'Non payé': 'badge-none', 'Acompte versé': 'badge-wait', 'Soldé': 'badge-paid'};
     return `<span class="badge ${map[p] || 'badge-none'}">${esc(p)}</span>`;
 }
-function trackOrder() {
+async function trackOrder() {
     const refQ = $('tracking-input').value.trim().toLowerCase().replace(/\s/g, '');
     const phoneQ = normalizePhone($('tracking-phone') ? $('tracking-phone').value : '');
     const box = $('tracking-result');
     if (!refQ || !phoneQ) {
-        box.innerHTML = '<div class="alert warn">🔒 Indiquez la <strong>référence</strong> (ex : LV-2026-1234) <strong>et</strong> le <strong>téléphone</strong> utilisés lors de la réservation.</div>';
+        box.innerHTML = '<div class="alert warn">🔒 Indiquez la <strong>référence</strong> (ex : LV-2026-123456) <strong>et</strong> le <strong>téléphone</strong> utilisés lors de la réservation.</div>';
         return;
     }
-    const order = getOrders().find(o =>
-        o.ref.toLowerCase().replace(/\s/g, '') === refQ &&
-        normalizePhone(o.phone).replace(/^\+?237/, '').endsWith(phoneQ.replace(/^\+?237/, '')));
+    let order = null;
+    if (cloudOn()) {
+        box.innerHTML = '<div class="alert">⏳ Recherche de votre commande…</div>';
+        try {
+            const res = await LVCloud.trackOrder(refQ, phoneQ);
+            if (res && res.ok) order = res.order;
+        } catch (err) {
+            box.innerHTML = '<div class="alert warn">⚠️ Connexion au serveur momentanément impossible. Réessayez dans un instant ou écrivez-nous sur WhatsApp.</div>';
+            return;
+        }
+    } else {
+        order = getOrders().find(o =>
+            o.ref.toLowerCase().replace(/\s/g, '') === refQ &&
+            normalizePhone(o.phone).replace(/^\+?237/, '').endsWith(phoneQ.replace(/^\+?237/, '')));
+    }
     if (!order) {
         box.innerHTML = `<div class="alert warn">🔍 Aucune commande ne correspond à cette référence et ce téléphone. Vérifiez vos informations ou contactez-nous sur WhatsApp.</div>`;
         return;
@@ -551,6 +592,34 @@ async function doLogin(e) {
     }
     const u = $('login-user').value.trim().toLowerCase();
     const pw = $('login-pass').value;
+    /* Mode cloud : la base de données vérifie le mot de passe et le rôle (bcrypt) */
+    if (cloudOn()) {
+        let res;
+        try { res = await LVCloud.login(u, pw); }
+        catch (err) {
+            $('login-error').textContent = '⛔ ' + err.message;
+            $('login-error').classList.remove('hidden');
+            return false;
+        }
+        if (!res.ok) {
+            $('login-error').textContent = (res.error || 'Identifiant ou mot de passe incorrect.');
+            $('login-error').classList.remove('hidden');
+            $('login-pass').value = '';
+            return false;
+        }
+        store.set('lv_login_attempts', {count: 0, lockedUntil: 0});
+        store.set('lv_session', {username: res.profile.username, profile: res.profile, at: Date.now()});
+        $('login-pass').value = '';
+        closeLogin();
+        await refreshAdminData(true);
+        enterAdmin();
+        toast(`Bienvenue ${res.profile.name} ${res.profile.role === 'super' ? '👑' : '🧑‍💼'}`, 'success');
+        if (res.profile.mustChangePassword) {
+            toast('⚠️ Changez votre mot de passe provisoire (onglet Administrateurs).', 'error');
+            setTimeout(() => showAdmin('team'), 700);
+        }
+        return false;
+    }
     const admin = getAdmins().find(a => a.username.toLowerCase() === u);
     let ok = false;
     if (admin) {
@@ -586,8 +655,42 @@ async function doLogin(e) {
 }
 function logout() {
     store.del('lv_session');
+    if (cloudOn()) { LVCloud.logout().catch(() => {}); }
     exitAdmin();
     toast('Déconnecté. À bientôt !');
+}
+let lastAdminRefresh = 0;
+async function refreshAdminData(force = false) {
+    if (!cloudOn() || !LVCloud.isAdmin()) return false;
+    if (!force && Date.now() - lastAdminRefresh < 4000) return true;
+    try {
+        const [orders, tx, provs] = await Promise.all([LVCloud.listOrders(), LVCloud.listTx(), LVCloud.listProviders()]);
+        store.set('lv_orders', orders);
+        store.set('lv_tx', tx);
+        store.set('lv_providers', provs);
+        lastAdminRefresh = Date.now();
+        return true;
+    } catch (e) {
+        toast('Synchro serveur : ' + e.message, 'error');
+        return false;
+    }
+}
+function currentAdminView() {
+    const v = document.querySelector('#admin-app .admin-view:not(.hidden)');
+    return v ? v.id.replace('admin-', '') : 'dashboard';
+}
+function renderCloudBadge() {
+    const el = $('cloud-status');
+    if (!el) return;
+    if (!cloudOn()) {
+        el.className = 'cloud-badge local';
+        el.innerHTML = '💾 Mode local';
+        el.title = "Données stockées uniquement dans ce navigateur (Supabase non configuré).";
+        return;
+    }
+    el.className = 'cloud-badge on';
+    el.innerHTML = '🟢 Synchronisé';
+    el.title = 'Commandes, tarifs et contenus enregistrés sur le serveur : visibles sur tous vos appareils.';
 }
 function enterAdmin() {
     $('client-app').classList.add('hidden');
@@ -602,8 +705,10 @@ function enterAdmin() {
     $('admin-avatar').textContent = a.name.charAt(0).toUpperCase();
     $('admin-date').textContent = new Date().toLocaleDateString('fr-FR', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'});
     applyPermissions();
+    renderCloudBadge();
     showAdmin('dashboard');
     window.scrollTo(0, 0);
+    refreshAdminData().then(ok => { if (ok) { renderDashboard(); renderCloudBadge(); } });
 }
 function exitAdmin() {
     $('admin-app').classList.add('hidden');
@@ -900,6 +1005,7 @@ function updateOrderStatus(id) {
     const o = orders.find(x => x.id === id);
     o.status = $('modal-status').value;
     saveOrders(orders);
+    if (cloudOn()) LVCloud.patchOrder(id, {status: o.status}).catch(e => toast('Synchro : ' + e.message, 'error'));
     toast('Statut : ' + o.status, 'success');
     openOrderModal(id); renderAdminOrders();
 }
@@ -907,17 +1013,25 @@ function recordPayment(id, kind) {
     const orders = getOrders();
     const o = orders.find(x => x.id === id);
     const tx = getTx();
+    let newTx = null;
     if (kind === 'acompte' && o.payStatus === 'Non payé') {
         o.payStatus = 'Acompte versé';
         if (o.status === 'En attente') o.status = 'Confirmée';
-        tx.push({id: Date.now(), date: todayISO(), type: 'recette', category: 'Acompte', label: `Acompte ${o.ref} — ${o.client}`, amount: o.acompte, ref: o.ref});
+        newTx = {id: Date.now(), date: todayISO(), type: 'recette', category: 'Acompte', label: `Acompte ${o.ref} — ${o.client}`, amount: o.acompte, ref: o.ref};
         toast('Acompte encaissé ✓', 'success');
     } else if (kind === 'solde' && o.payStatus === 'Acompte versé') {
         o.payStatus = 'Soldé';
-        tx.push({id: Date.now(), date: todayISO(), type: 'recette', category: 'Solde', label: `Solde ${o.ref} — ${o.client}`, amount: o.solde, ref: o.ref});
+        newTx = {id: Date.now(), date: todayISO(), type: 'recette', category: 'Solde', label: `Solde ${o.ref} — ${o.client}`, amount: o.solde, ref: o.ref};
         toast('Commande soldée ✓', 'success');
     }
+    if (newTx) tx.push(newTx);
     saveTx(tx); saveOrders(orders);
+    if (cloudOn() && newTx) {
+        Promise.all([
+            LVCloud.patchOrder(id, {pay_status: o.payStatus, status: o.status}),
+            LVCloud.insertTx(newTx)
+        ]).catch(e => toast('Synchro : ' + e.message, 'error'));
+    }
     openOrderModal(id); renderAdminOrders();
 }
 function payMusician(id) {
@@ -926,8 +1040,13 @@ function payMusician(id) {
     o.musicianPaid = true;
     saveOrders(orders);
     const tx = getTx();
-    tx.push({id: Date.now(), date: todayISO(), type: 'depense', category: 'Paiement prestataire', label: `Musiciens — ${o.ref}`, amount: o.musicianCost, ref: o.ref});
+    const newTx = {id: Date.now(), date: todayISO(), type: 'depense', category: 'Paiement prestataire', label: `Musiciens — ${o.ref}`, amount: o.musicianCost, ref: o.ref};
+    tx.push(newTx);
     saveTx(tx);
+    if (cloudOn()) {
+        Promise.all([LVCloud.patchOrder(id, {musician_paid: true}), LVCloud.insertTx(newTx)])
+            .catch(e => toast('Synchro : ' + e.message, 'error'));
+    }
     toast('Musiciens payés 🎷', 'success');
     if (!$('order-modal').classList.contains('hidden')) openOrderModal(id);
     renderAdminOrders();
@@ -937,6 +1056,7 @@ function deleteOrder(id) {
     if (!isSuper()) { toast('Suppression réservée au Super Admin 🔒', 'error'); return; }
     if (!confirm('Supprimer définitivement cette commande ?')) return;
     saveOrders(getOrders().filter(o => o.id !== id));
+    if (cloudOn()) LVCloud.deleteOrder(id).catch(e => toast('Synchro : ' + e.message, 'error'));
     closeOrderModal(); renderAdminOrders();
     toast('Commande supprimée');
 }
@@ -1003,12 +1123,14 @@ function renderFinance() {
 function addTransaction(e) {
     e.preventDefault();
     const tx = getTx();
-    tx.push({
+    const newTx = {
         id: Date.now(), date: $('tx-date').value || todayISO(),
         type: $('tx-type').value, category: $('tx-category').value,
         label: $('tx-label').value.trim(), amount: Number($('tx-amount').value)
-    });
+    };
+    tx.push(newTx);
     saveTx(tx);
+    if (cloudOn()) LVCloud.insertTx(newTx).catch(e => toast('Synchro : ' + e.message, 'error'));
     $('tx-label').value = ''; $('tx-amount').value = '';
     renderFinance();
     toast('Opération enregistrée ✓', 'success');
@@ -1018,6 +1140,7 @@ function deleteTx(id) {
     if (!isSuper()) { toast('Suppression réservée au Super Admin 🔒', 'error'); return; }
     if (!confirm('Supprimer cette opération ?')) return;
     saveTx(getTx().filter(t => t.id !== id));
+    if (cloudOn()) LVCloud.deleteTx(id).catch(e => toast('Synchro : ' + e.message, 'error'));
     renderFinance();
 }
 function exportFinanceCSV() {
@@ -1051,8 +1174,10 @@ function toggleProviderForm() { $('provider-form').classList.toggle('hidden'); }
 function addProvider(e) {
     e.preventDefault();
     const provs = getProviders();
-    provs.push({id: Date.now(), name: $('prov-name').value.trim(), skill: $('prov-skill').value.trim(), phone: $('prov-phone').value.trim(), cost: Number($('prov-cost').value) || 0});
+    const newProv = {id: Date.now(), name: $('prov-name').value.trim(), skill: $('prov-skill').value.trim(), phone: $('prov-phone').value.trim(), cost: Number($('prov-cost').value) || 0};
+    provs.push(newProv);
     saveProviders(provs);
+    if (cloudOn()) LVCloud.insertProvider(newProv).catch(e => toast('Synchro : ' + e.message, 'error'));
     $('provider-form').reset(); $('prov-cost').value = getSettings().musicCost;
     toggleProviderForm(); renderProviders();
     toast('Prestataire ajouté ✓', 'success');
@@ -1062,6 +1187,7 @@ function deleteProvider(id) {
     if (!isSuper()) { toast('Suppression réservée au Super Admin 🔒', 'error'); return; }
     if (!confirm('Retirer ce prestataire ?')) return;
     saveProviders(getProviders().filter(p => p.id !== id));
+    if (cloudOn()) LVCloud.deleteProvider(id).catch(e => toast('Synchro : ' + e.message, 'error'));
     renderProviders();
 }
 
@@ -1179,11 +1305,13 @@ function deleteCatalogItem(kind, id) {
 }
 function saveSettings() {
     if (!isSuper()) { toast('Réservé au Super Admin 🔒', 'error'); return; }
-    store.set('lv_settings', {
+    const newSettings = {
         acompte: Math.min(100, Math.max(0, Number($('setting-acompte').value) || 30)),
         remise: Math.min(50, Math.max(0, Number($('setting-remise').value) || 0)),
         musicCost: Math.max(0, Number($('setting-music').value) || 0)
-    });
+    };
+    store.set('lv_settings', newSettings);
+    pushContent('settings', newSettings);
     renderCatalogs();
     toast('Paramètres enregistrés ✓', 'success');
 }
@@ -1262,13 +1390,18 @@ function resetAllContent() {
     if (!isSuper()) { toast('Réservé au Super Admin 🔒', 'error'); return; }
     if (!confirm('Tout restaurer : catalogue, photos, textes, tarifs et coordonnées par défaut ?')) return;
     store.del('lv_catalog'); store.del('lv_site'); store.del('lv_prices');
+    pushContent('catalog', getCatalog());
+    pushContent('site', getSite());
     renderCatalogs(); renderSiteContent(); renderPricing(); renderSiteForm();
     toast('Contenu restauré par défaut ✓', 'success');
 }
 
 /* ═══════════ ADMIN : ÉQUIPE ═══════════ */
-function renderTeam() {
-    const admins = getAdmins();
+async function renderTeam() {
+    let admins = getAdmins();
+    if (cloudOn() && LVCloud.isAdmin()) {
+        try { admins = await LVCloud.listUsers(); } catch (e) { toast('Comptes : ' + e.message, 'error'); }
+    }
     const perms = {
         super: ['✔ Tableau de bord & statistiques', '✔ Commandes (créer, modifier, supprimer)', '✔ Finances (ajouter, supprimer, exports)', '✔ Prestataires & paiements', '✔ Catalogue : prix, photos, textes, ajout/suppression', '✔ Contenu du site : hero, bannières, coordonnées', '✔ Gestion des comptes'],
         manager: ['✔ Tableau de bord & statistiques', '✔ Commandes (créer, modifier)', '✔ Finances (ajouter, exports)', '✔ Prestataires & paiements', '✖ Catalogue, photos & tarifs (lecture seule)', '✖ Contenu du site (lecture seule)', '✖ Gestion des comptes']
@@ -1281,10 +1414,78 @@ function renderTeam() {
             <div><code>${esc(a.username)}</code> · <small class="muted">${esc(a.title)}</small></div>
             <ul>${perms[a.role].map(p => `<li>${p}</li>`).join('')}</ul>
             ${currentAdmin().username === a.username ? '<p style="margin-top:10px"><span class="badge badge-info">C\'est vous</span></p>' : ''}
+            ${isSuper() && currentAdmin().username !== a.username ? `<p style="margin-top:10px"><button class="btn-mini danger" onclick="removeTeamMember('${esc(a.username)}')">🗑 Retirer ce compte</button></p>` : ''}
         </div>`).join('');
+    const manage = $('team-manage');
+    if (manage) manage.classList.toggle('hidden', !isSuper());
+}
+async function saveTeamMember(e) {
+    e.preventDefault();
+    if (!isSuper()) { toast('Réservé au Super Admin 🔒', 'error'); return false; }
+    const username = $('tm-user').value.trim().toLowerCase();
+    const name = $('tm-name').value.trim();
+    const title = $('tm-title').value.trim();
+    const role = $('tm-role').value;
+    const pw = $('tm-pass').value;
+    if (!/^[a-z0-9._-]{3,30}$/.test(username)) { toast('Identifiant invalide : 3 à 30 caractères, sans espace.', 'error'); return false; }
+    if (!name) { toast('Indiquez le nom affiché.', 'error'); return false; }
+    if (pw && pw.length < 10) { toast('Mot de passe : 10 caractères minimum.', 'error'); return false; }
+    if (cloudOn()) {
+        try {
+            const res = await LVCloud.saveUser({username, password: pw, role, name, title});
+            if (!res || !res.ok) { toast((res && res.error) || 'Échec de l\u2019enregistrement.', 'error'); return false; }
+        } catch (err) { toast('Comptes : ' + err.message, 'error'); return false; }
+        $('team-form').reset();
+        renderTeam();
+        toast('Compte enregistré côté serveur ✓', 'success');
+        return false;
+    }
+    const admins = getAdmins();
+    const rec = admins.find(a => a.username === username);
+    const hash = pw ? await hashPassword(username, pw) : null;
+    if (rec) {
+        rec.role = role; rec.name = name; rec.title = title;
+        if (hash) { rec.passwordHash = hash; rec.mustChangePassword = true; }
+    } else {
+        if (!pw) { toast('Un mot de passe est requis pour un nouveau compte.', 'error'); return false; }
+        admins.push({username, passwordHash: hash, role, name, title, mustChangePassword: true});
+    }
+    saveAdmins(admins);
+    $('team-form').reset();
+    renderTeam();
+    toast('Compte enregistré ✓', 'success');
+    return false;
+}
+async function removeTeamMember(username) {
+    if (!isSuper()) { toast('Réservé au Super Admin 🔒', 'error'); return; }
+    if (!confirm('Retirer définitivement le compte « ' + username + ' » ?')) return;
+    if (cloudOn()) {
+        try {
+            const res = await LVCloud.deleteUser(username);
+            if (!res || !res.ok) { toast((res && res.error) || 'Suppression refusée.', 'error'); return; }
+        } catch (err) { toast('Comptes : ' + err.message, 'error'); return; }
+    } else {
+        saveAdmins(getAdmins().filter(a => a.username !== username));
+    }
+    renderTeam();
+    toast('Compte retiré', 'success');
 }
 async function changePassword(e) {
     e.preventDefault();
+    if (cloudOn()) {
+        if ($('pw-new').value !== $('pw-confirm').value) { toast('Les nouveaux mots de passe ne correspondent pas', 'error'); return false; }
+        if ($('pw-new').value.length < 10) { toast('Mot de passe trop court : 10 caractères minimum.', 'error'); return false; }
+        try {
+            const res = await LVCloud.changePassword($('pw-old').value, $('pw-new').value);
+            if (!res || !res.ok) { toast((res && res.error) || 'Échec', 'error'); return false; }
+        } catch (err) { toast('Mot de passe : ' + err.message, 'error'); return false; }
+        const sess = store.get('lv_session', null);
+        if (sess && sess.profile) { sess.profile.mustChangePassword = false; store.set('lv_session', sess); }
+        $('pw-old').value = $('pw-new').value = $('pw-confirm').value = '';
+        toast('Mot de passe mis à jour ✓ (enregistré sur le serveur)', 'success');
+        renderTeam();
+        return false;
+    }
     const admins = getAdmins();
     const me = currentAdmin();
     const record = admins.find(a => a.username === me.username);
@@ -1305,6 +1506,10 @@ function resetDemoData() {
     if (!confirm('Charger des données de TEST ? Vos données actuelles seront remplacées. Pensez à purger avant l\u2019ouverture.')) return;
     store.del('lv_seeded');
     seedDemo(true);
+    if (cloudOn()) {
+        Promise.all([LVCloud.upsertOrders(getOrders()), LVCloud.upsertTx(getTx())])
+            .catch(e => toast('Synchro : ' + e.message, 'error'));
+    }
     renderDashboard();
     toast('Données de test chargées (à purger avant l\u2019ouverture)', 'success');
 }
@@ -1314,8 +1519,10 @@ function purgeDemoData() {
     if (!confirm('Supprimer toutes les commandes de démonstration et leurs transactions liées ?')) return;
     const orders = getOrders();
     const demoRefs = new Set(orders.filter(o => DEMO_CLIENTS.includes(o.client)).map(o => o.ref));
+    const demoIds = orders.filter(o => DEMO_CLIENTS.includes(o.client)).map(o => o.id);
     saveOrders(orders.filter(o => !demoRefs.has(o.ref)));
     saveTx(getTx().filter(t => !t.ref || !demoRefs.has(t.ref)));
+    if (cloudOn() && demoIds.length) LVCloud.deleteOrders(demoIds).catch(e => toast('Synchro : ' + e.message, 'error'));
     store.del('lv_seeded');
     renderDashboard(); renderAdminOrders(); renderFinance();
     toast(`Données de démonstration purgées (${demoRefs.size} commande(s) retirée(s)) ✓`, 'success');
@@ -1351,6 +1558,17 @@ function importBackup(input) {
             if (b.site) store.set('lv_site', b.site);
             if (b.settings) store.set('lv_settings', b.settings);
             store.set('lv_seeded', true);
+            if (cloudOn() && LVCloud.canWrite()) {
+                Promise.all([
+                    LVCloud.setContent('catalog', getCatalog()),
+                    LVCloud.setContent('site', getSite()),
+                    LVCloud.setContent('settings', getSettings())
+                ]).catch(e => toast('Synchro : ' + e.message, 'error'));
+            }
+            if (cloudOn()) {
+                Promise.all([LVCloud.upsertOrders(getOrders()), LVCloud.upsertTx(getTx()), LVCloud.upsertProviders(getProviders())])
+                    .catch(e => toast('Synchro : ' + e.message, 'error'));
+            }
             renderCatalogs(); renderSiteContent(); renderDashboard();
             toast('Sauvegarde importée ✓', 'success');
         } catch { toast('Fichier de sauvegarde invalide.', 'error'); }
@@ -1472,6 +1690,7 @@ function seedDemo(force = false) {
 document.addEventListener('DOMContentLoaded', async () => {
     await migrateAdminPasswords(); // mots de passe en clair → hashés
     migrateOldOrders();
+    if (currentAdmin()) renderCloudBadge();
     // ⚠️ Plus de données de démonstration automatiques : le site démarre vide.
     // Les données de test se chargent uniquement via l'admin (Zone dangereuse).
     renderCatalogs();
@@ -1489,4 +1708,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.addEventListener('resize', () => {
         if (!$('admin-app').classList.contains('hidden') && !$('admin-dashboard').classList.contains('hidden')) renderDashboard();
     });
+
+    /* ── Synchro serveur en arrière-plan (le site s'affiche sans attendre) ── */
+    if (cloudOn()) {
+        syncPublicContent().then(ok => {
+            if (!ok) return;
+            renderCatalogs(); renderCart(); renderSiteContent();
+            toast('Tarifs et contenus à jour ✓', 'success');
+        });
+        LVCloud.restore().then(prof => {
+            if (prof) store.set('lv_session', {username: prof.username, profile: prof, at: Date.now()});
+            if (currentAdmin()) renderCloudBadge();
+        });
+    }
 });
